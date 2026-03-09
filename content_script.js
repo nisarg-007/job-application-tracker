@@ -105,11 +105,24 @@
         return document.title || "";
     }
 
+    // These are job‑board platform names, NOT the hiring company — skip them.
+    const PLATFORM_NAMES = [
+        "jobright ai", "jobright", "linkedin", "indeed", "glassdoor",
+        "ziprecruiter", "monster", "simplyhired", "lever", "greenhouse",
+        "workday", "smartrecruiters", "icims", "taleo"
+    ];
+
     function companyFromMeta() {
         const ogSite = document.querySelector('meta[property="og:site_name"]');
-        if (ogSite) return ogSite.content.trim();
+        if (ogSite) {
+            const val = ogSite.content.trim();
+            if (val && !PLATFORM_NAMES.includes(val.toLowerCase())) return val;
+        }
         const author = document.querySelector('meta[name="author"]');
-        if (author) return author.content.trim();
+        if (author) {
+            const val = author.content.trim();
+            if (val && !PLATFORM_NAMES.includes(val.toLowerCase())) return val;
+        }
         return "";
     }
 
@@ -151,6 +164,44 @@
                     const text = titleEl.nextElementSibling.innerText || titleEl.nextElementSibling.textContent || "";
                     const parts = text.split("·");
                     if (parts.length > 0) return parts[0].trim();
+                }
+            }
+        } catch (_) { }
+        return "";
+    }
+
+    // ───── Jobright‑specific company extraction ─────
+    function companyFromJobright() {
+        try {
+            if (!location.hostname.includes("jobright.ai")) return "";
+
+            // The employer name appears as text like "Avathon · 4 hours ago"
+            // inside a <strong> or plain text node near the job title area.
+            const candidates = [
+                // Primary: strong tag or span that contains the bullet separator
+                ...Array.from(document.querySelectorAll("strong, .company, .company-name, [class*='company'], [class*='employer']")),
+                // Fallback: any element whose text matches "Name · time ago"
+                ...Array.from(document.querySelectorAll("p, span, div"))
+            ];
+
+            for (const el of candidates) {
+                const text = (el.textContent || "").trim();
+                // Match "CompanyName · X [hours|days|minutes] ago"
+                const match = text.match(/^([^·\n]{2,80})·\s*\d+\s+(?:second|minute|hour|day|week|month)s?\s+ago/i);
+                if (match) {
+                    return match[1].trim();
+                }
+            }
+
+            // Secondary: look for the company anchor or bold near the h1
+            const h1 = document.querySelector("h1");
+            if (h1) {
+                let sibling = h1.nextElementSibling;
+                for (let i = 0; i < 5 && sibling; i++) {
+                    const text = (sibling.textContent || "").trim();
+                    const match = text.match(/^([^·\n]{2,80})·/);
+                    if (match) return match[1].trim();
+                    sibling = sibling.nextElementSibling;
                 }
             }
         } catch (_) { }
@@ -271,6 +322,10 @@
 
         if (location.hostname.includes("tealhq.com")) {
             companyName = companyFromTeal();
+        }
+
+        if (!companyName && location.hostname.includes("jobright.ai")) {
+            companyName = companyFromJobright();
         }
 
         if (!companyName) companyName = queryFirst(COMPANY_SELECTORS);
