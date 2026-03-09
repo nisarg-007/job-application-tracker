@@ -74,8 +74,8 @@ If we update this privacy policy, we will update the "Last Updated" date at the 
 If you have any questions about this privacy policy, please contact:
 
 **Nisarg Shah**  
-Email: [your-email@example.com]  
-GitHub: [https://github.com/nisarg-shah](https://github.com/nisarg-shah)
+Email: nisarg0708@gmail.com  
+GitHub: [https://github.com/nisarg-007](https://github.com/nisarg-007)
 
 ---
 

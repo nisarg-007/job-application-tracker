@@ -4,7 +4,7 @@
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Install%20Free-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore)
 [![License: MIT](https://img.shields.io/badge/License-MIT-6c63ff?style=for-the-badge)](LICENSE)
-[![Made with Love](https://img.shields.io/badge/Made%20with-❤️-ff6b6b?style=for-the-badge)](https://github.com/nisarg-shah)
+[![Made with Love](https://img.shields.io/badge/Made%20with-❤️-ff6b6b?style=for-the-badge)](https://github.com/nisarg-007)
 
 ---
 
@@ -51,7 +51,7 @@ Built for job seekers who are tired of losing track of where they applied, which
 Search "Job Application Tracker" or [click here](#) to install.
 
 **Option B — Load Unpacked** (developers):
-1. Clone this repo: `git clone https://github.com/nisarg-shah/job-application-tracker.git`
+1. Clone this repo: `git clone https://github.com/nisarg-007/job-application-tracker.git`
 2. Open `chrome://extensions` in Chrome
 3. Enable **Developer mode** (toggle top-right)
 4. Click **"Load unpacked"** → select the cloned folder
@@ -234,7 +234,7 @@ Free to use, modify, and distribute. If you find it useful, star ⭐ this repo!
 
 **Nisarg Shah** — *Vibe Coder*
 
-- GitHub: [@nisarg-shah](https://github.com/nisarg-shah)
+- GitHub: [@nisarg-007](https://github.com/nisarg-007)
 
 ---
 
