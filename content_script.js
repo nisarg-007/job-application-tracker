@@ -157,6 +157,25 @@
         return "";
     }
 
+    // ───── Generic Logo/Brand Link extraction (e.g. UltiPro) ─────
+    function companyFromBrandLink() {
+        try {
+            const brandLink = document.querySelector(".navbar-brand[href], .logo[href], a.logo, a[class*='logo']");
+            if (brandLink && brandLink.href) {
+                const url = new URL(brandLink.href);
+                const hostParts = url.hostname.replace(/^www\./, "").split(".");
+                if (hostParts.length > 0) {
+                    const comp = hostParts[0].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                    // Ignore common generic domains
+                    if (!["google", "apple", "facebook", "linkedin", "twitter", "instagram"].includes(comp.toLowerCase())) {
+                        return comp === "Workday" ? "" : comp;
+                    }
+                }
+            }
+        } catch (_) { }
+        return "";
+    }
+
     function extractSalary() {
         const text = document.body.innerText || "";
         const match = text.match(/\$[\d,]{2,7}(?:\.\d+)?\s*(?:k|K|m|M)?\s*(?:-|to|—)\s*\$[\d,]{2,7}(?:\.\d+)?\s*(?:k|K|m|M)?/i);
@@ -257,6 +276,7 @@
         if (!companyName) companyName = queryFirst(COMPANY_SELECTORS);
         if (!companyName) companyName = companyFromMeta();
         if (!companyName) companyName = companyFromUrl();
+        if (!companyName) companyName = companyFromBrandLink();
 
         // ───── Board-specific Title/Company overrides ─────
         if (location.hostname.includes("paylocity.com") && jobTitle.includes(" - ")) {
