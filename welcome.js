@@ -35,12 +35,16 @@ function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     const ss    = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_NAME);
+    
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+        sheet = ss.getSheets()[0];
+    }
 
     if (!sheet) {
       return _jsonResponse({
         status: "error",
-        message: 'Sheet "' + SHEET_NAME + '" not found.',
+        message: "Could not find any sheets.",
       });
     }
 

@@ -81,14 +81,19 @@ function doPost(e) {
         // Parse the incoming JSON
         const data = JSON.parse(e.postData.contents);
 
-        // Open the active spreadsheet and target sheet
+        // Open the active spreadsheet
         const ss = SpreadsheetApp.getActiveSpreadsheet();
-        const sheet = ss.getSheetByName(SHEET_NAME);
+
+        // Try to get the sheet by name first, otherwise just grab the first sheet available
+        let sheet = ss.getSheetByName(SHEET_NAME);
+        if (!sheet) {
+            sheet = ss.getSheets()[0];
+        }
 
         if (!sheet) {
             return _jsonResponse({
                 status: "error",
-                message: `Sheet "${SHEET_NAME}" not found. Please create it.`,
+                message: "Could not find any sheets in the spreadsheet document.",
             });
         }
 
