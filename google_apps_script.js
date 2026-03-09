@@ -99,7 +99,7 @@ function doPost(e) {
 
         // Build the row in the same column order as the headers
         const row = [
-            data.timestamp || new Date().toISOString(),  // A — Timestamp
+            data.timestamp || new Date().toLocaleString(),  // A — Timestamp
             data.applicationDate || "",                  // B — Application Date
             data.jobTitle || "",                         // C — Job Title
             data.companyName || "",                      // D — Company Name

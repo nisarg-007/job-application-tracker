@@ -49,7 +49,7 @@ function doPost(e) {
     }
 
     const row = [
-      data.timestamp       || new Date().toISOString(),
+      data.timestamp       || new Date().toLocaleString(),
       data.applicationDate || "",
       data.jobTitle        || "",
       data.companyName     || "",

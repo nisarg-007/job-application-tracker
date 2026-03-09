@@ -320,7 +320,7 @@ $form.addEventListener("submit", async (e) => {
     }
 
     const payload = {
-        timestamp: now.toISOString(),
+        timestamp: formatDateTime(now),
         applicationDate: formatDateOnly(now),
         jobTitle: $jobTitle.value.trim(),
         companyName: $companyName.value.trim(),
