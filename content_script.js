@@ -113,16 +113,27 @@
         return "";
     }
 
-    // ───── Lever‑specific company extraction from URL ─────
-    function companyFromLeverUrl() {
+    // ───── Company extraction from URL (Lever, Greenhouse) ─────
+    function companyFromUrl() {
         try {
-            const hostname = location.hostname; // e.g. jobs.lever.co
+            const hostname = location.hostname;
+            const pathname = location.pathname;
+            const parts = pathname.split("/").filter(Boolean);
+
             if (hostname.includes("lever.co")) {
-                const parts = location.pathname.split("/").filter(Boolean);
                 if (parts.length > 0) {
                     return parts[0]
                         .replace(/-/g, " ")
                         .replace(/\b\w/g, (c) => c.toUpperCase());
+                }
+            } else if (hostname.includes("greenhouse.io")) {
+                if (parts.length > 0) {
+                    let comp = parts[0];
+                    if (comp !== "embed" && comp !== "jobs") {
+                        return comp.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                    } else if (parts.length > 1) {
+                        return parts[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                    }
                 }
             }
         } catch (_) { }
@@ -156,11 +167,66 @@
     }
 
     function extractLocation() {
-        const text = document.body.innerText.substring(0, 3000) || "";
-        const match = text.match(/\b(Remote|Hybrid|On-site|Onsite)\b/i);
-        if (match) {
-            let loc = match[1].toLowerCase();
-            return loc === "onsite" ? "On-site" : loc.charAt(0).toUpperCase() + loc.slice(1);
+        const LOCATION_SELECTORS = [
+            // LinkedIn
+            ".job-details-jobs-unified-top-card__exact-location",
+            ".job-details-jobs-unified-top-card__primary-description-container span.tvm__text",
+            ".jobs-unified-top-card__bullet",
+
+            // Indeed
+            '[data-testid="inlineHeader-companyLocation"]',
+            "#jobLocationText",
+
+            // Greenhouse
+            ".location",
+            "#header .location",
+
+            // Lever
+            ".sort-by-time.posting-category",
+            ".posting-categories .location",
+
+            // Workday
+            'div[data-automation-id="locations"] dd',
+            'div[data-automation-id="location"] dd',
+
+            // Glassdoor
+            '[data-test="location"]',
+
+            // Ashby
+            ".job-info-list button:nth-child(2)",
+            ".job-info-list button",
+
+            // Generic fallbacks
+            ".company-location",
+            ".job-location",
+            ".posting-location",
+            '[itemprop="jobLocation"]'
+        ];
+
+        let domLoc = queryFirst(LOCATION_SELECTORS) || "";
+
+        // Scan full body text for remote/hybrid indicator (removed 3000 limit)
+        const text = document.body.innerText || "";
+        const modeMatch = text.match(/\b(Remote|Hybrid|On-site|Onsite)\b/i);
+        let mode = "";
+
+        if (modeMatch) {
+            let m = modeMatch[1].toLowerCase();
+            mode = m === "onsite" ? "On-site" : m.charAt(0).toUpperCase() + m.slice(1);
+        }
+
+        // Output clean up
+        domLoc = domLoc.replace(/\n/g, ", ").replace(/\s{2,}/g, " ").trim();
+
+        if (domLoc && mode) {
+            if (!domLoc.toLowerCase().includes(mode.toLowerCase())) {
+                return `${domLoc} (${mode})`;
+            }
+            return domLoc;
+        } else if (domLoc) {
+            return domLoc;
+        } else if (mode) {
+            return mode;
         }
         return "";
     }
@@ -179,7 +245,7 @@
 
         if (!companyName) companyName = queryFirst(COMPANY_SELECTORS);
         if (!companyName) companyName = companyFromMeta();
-        if (!companyName) companyName = companyFromLeverUrl();
+        if (!companyName) companyName = companyFromUrl();
 
         return {
             jobTitle: jobTitle || "",
