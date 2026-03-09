@@ -86,9 +86,12 @@ Each tracked application creates a row with these columns:
 | Job Title | Senior Software Engineer |
 | Company Name | Google |
 | URL | https://careers.google.com/jobs/... |
+| Location | Remote |
+| Salary | $120k - $150k |
 | Resume Used | Software Engineer Resume |
 | Likelihood | Medium |
 | Source | careers.google.com |
+| Status | Applied |
 | Notes | *(empty — fill in manually if needed)* |
 
 ---
