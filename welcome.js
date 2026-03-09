@@ -119,6 +119,28 @@ $copyBtn.addEventListener("click", async () => {
   }
 });
 
+// ─── Copy headers to clipboard ─────────────────────────────
+const $copyHeadersBtn = document.getElementById("copyHeadersBtn");
+if ($copyHeadersBtn) {
+  $copyHeadersBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText("Timestamp\tApplication Date\tJob Title\tCompany Name\tURL\tLocation\tSalary\tResume Used\tConfidence Level\tSource\tStatus\tNotes");
+      const originalInner = $copyHeadersBtn.innerHTML;
+      $copyHeadersBtn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Copied!
+      `;
+      $copyHeadersBtn.classList.add("copied");
+      setTimeout(() => {
+        $copyHeadersBtn.innerHTML = originalInner;
+        $copyHeadersBtn.classList.remove("copied");
+      }, 2500);
+    } catch (e) {
+      console.error("Failed to copy headers:", e);
+    }
+  });
+}
+
 // ─── URL validation ───────────────────────────────────────
 $urlInput.addEventListener("input", () => {
   const val = $urlInput.value.trim();

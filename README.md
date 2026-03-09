@@ -77,6 +77,12 @@ When you first install, the **Setup Wizard** opens automatically and walks you t
 
 ## 📊 Google Sheet Columns
 
+**⏱️ Quick Setup:** Copy the exact line below, go to your new Google Sheet, select cell **A1**, and paste (Ctrl+V) to automatically fill all column headers!
+
+```text
+Timestamp	Application Date	Job Title	Company Name	URL	Location	Salary	Resume Used	Confidence Level	Source	Status	Notes
+```
+
 Each tracked application creates a row with these columns:
 
 | Column | Example |
@@ -89,7 +95,7 @@ Each tracked application creates a row with these columns:
 | Location | Remote |
 | Salary | $120k - $150k |
 | Resume Used | Software Engineer Resume |
-| Likelihood | Medium |
+| Confidence Level | Medium |
 | Source | careers.google.com |
 | Status | Applied |
 | Notes | *(empty — fill in manually if needed)* |

@@ -95,14 +95,31 @@
                 </div>
                 <div class="instruction">
                     <div class="instruction-num">3</div>
-                    <div>
+                    <div style="width: 100%;">
                         <strong>Add column headers</strong>
-                        <p>Type these headers in Row 1, one per cell (A1 through L1):</p>
+                        <p>Copy the line below, select cell <strong>A1</strong> in your sheet, and paste (Ctrl+V) to
+                            automatically fill all columns:</p>
+
+                        <div class="code-copy-area" style="margin-top: 10px; margin-bottom: 0;">
+                            <div class="code-header">
+                                <span
+                                    style="font-family: monospace; font-size: 0.8em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">Timestamp
+                                    Application Date Job Title Company Name URL...</span>
+                                <button id="copyHeadersBtn" class="copy-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                    </svg>
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="columns-preview">
+            <div class="columns-preview" style="margin-top: 15px;">
                 <div class="col-chip">A: Timestamp</div>
                 <div class="col-chip">B: Application Date</div>
                 <div class="col-chip">C: Job Title</div>
