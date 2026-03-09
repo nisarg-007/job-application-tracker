@@ -117,6 +117,28 @@ $settingsBtn.addEventListener("click", () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
 });
 
+// Theme Toggle
+const $themeToggleBtn = document.getElementById("themeToggleBtn");
+const $sunIcon = document.querySelector(".sun-icon");
+const $moonIcon = document.querySelector(".moon-icon");
+
+function applyTheme(theme) {
+    document.body.dataset.theme = theme;
+    if (theme === "light") {
+        $sunIcon.style.display = "block";
+        $moonIcon.style.display = "none";
+    } else {
+        $sunIcon.style.display = "none";
+        $moonIcon.style.display = "block";
+    }
+}
+
+$themeToggleBtn.addEventListener("click", () => {
+    const newTheme = document.body.dataset.theme === "light" ? "dark" : "light";
+    applyTheme(newTheme);
+    chrome.storage.local.set({ theme: newTheme });
+});
+
 // Open Sheet button → open the connected Google Sheet
 const $openSheetBtn = document.getElementById("openSheetBtn");
 $openSheetBtn.addEventListener("click", async () => {
@@ -183,7 +205,10 @@ async function saveCustomResume(name) {
 
 async function init() {
     // Check if setup is complete
-    const { setupComplete, webAppUrl } = await chrome.storage.local.get(["setupComplete", "webAppUrl"]);
+    const { setupComplete, webAppUrl, theme } = await chrome.storage.local.get(["setupComplete", "webAppUrl", "theme"]);
+
+    if (theme) applyTheme(theme);
+
     if (!setupComplete && (!webAppUrl || webAppUrl === "YOUR_WEB_APP_URL_HERE")) {
         const configUrl = (typeof CONFIG !== "undefined") ? CONFIG.WEB_APP_URL : "";
         if (!configUrl || configUrl === "YOUR_WEB_APP_URL_HERE") {

@@ -37,6 +37,24 @@
     --transition: .2s ease;
 }
 
+[data-theme="light"] {
+    --bg-primary: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-elevated: #f1f5f9;
+    --bg-input: #f8fafc;
+    --bg-input-focus: #ffffff;
+
+    --border: #e2e8f0;
+    --border-focus: #6c63ff;
+
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-label: #334155;
+
+    --accent-glow: rgba(108, 99, 255, .15);
+}
+
 /* ─── Reset ─── */
 *,
 *::before,
