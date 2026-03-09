@@ -47,14 +47,14 @@ Built for job seekers who are tired of losing track of where they applied, which
 ## 🚀 Quick Start (3 Minutes!)
 
 ### Step 1: Install the Extension
-**Option A — Chrome Web Store** *(coming soon)*:
-Search "Job Application Tracker" or [click here](#) to install.
 
-**Option B — Load Unpacked** (developers):
-1. Clone this repo: `git clone https://github.com/nisarg-007/job-application-tracker.git`
-2. Open `chrome://extensions` in Chrome
-3. Enable **Developer mode** (toggle top-right)
-4. Click **"Load unpacked"** → select the cloned folder
+🚪 **Gate 1: Chrome Web Store** *(coming soon)*
+Search "Job Application Tracker" or [click here](#) to install directly from the store.
+
+🚪 **Gate 2: Pull from Repository (Manual Install)**
+Want to install without using the Web Store? You can easily load the extension directly from the source code right here.
+
+👉 **[Read the step-by-step guide on how to install from the repository](INSTALL_FROM_REPO.md)**
 
 ### Step 2: Set Up Your Google Sheet
 When you first install, the **Setup Wizard** opens automatically and walks you through:
