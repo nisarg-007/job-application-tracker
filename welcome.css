@@ -1,0 +1,690 @@
+/* =====================================================
+   welcome.css — Onboarding wizard styling
+   Premium dark theme with animations
+   ===================================================== */
+
+:root {
+    --bg-primary: #0b0d14;
+    --bg-card: #13161f;
+    --bg-elevated: #1a1e2a;
+    --bg-input: #1e2233;
+    --bg-input-focus: #252a3a;
+
+    --border: #2a2f42;
+    --border-focus: #6c63ff;
+
+    --text-primary: #f0f0f5;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --text-label: #c4c9d4;
+
+    --accent: #6c63ff;
+    --accent-hover: #7f78ff;
+    --accent-glow: rgba(108, 99, 255, .30);
+    --accent-2: #9b59b6;
+
+    --success: #34d399;
+    --success-bg: rgba(52, 211, 153, .08);
+    --error: #f87171;
+    --warning: #fbbf24;
+    --warning-bg: rgba(251, 191, 36, .08);
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: .25s ease;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Wizard Container ─── */
+.wizard-container {
+    width: 100%;
+    max-width: 660px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 80px var(--accent-glow);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ─── Progress Bar ─── */
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--border);
+}
+
+.progress-fill {
+    height: 100%;
+    width: 20%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 0 3px 3px 0;
+    transition: width .5s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* ─── Step Indicators ─── */
+.step-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.step-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all var(--transition);
+}
+
+.step-dot.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.step-dot.completed {
+    border-color: var(--success);
+    background: var(--success);
+    color: #fff;
+}
+
+/* ─── Steps ─── */
+.step {
+    display: none;
+    animation: fadeSlideIn .4s ease;
+}
+
+.step.active {
+    display: block;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── Step Icons ─── */
+.step-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.welcome-icon {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 8px 30px var(--accent-glow);
+    color: #fff;
+}
+
+.sheet-icon {
+    background: linear-gradient(135deg, #34d399, #059669);
+    box-shadow: 0 8px 30px rgba(52, 211, 153, .3);
+    color: #fff;
+}
+
+.script-icon {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    box-shadow: 0 8px 30px rgba(251, 191, 36, .3);
+    color: #fff;
+}
+
+.link-icon {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 8px 30px rgba(96, 165, 250, .3);
+    color: #fff;
+}
+
+.done-icon {
+    background: linear-gradient(135deg, var(--success), #059669);
+    box-shadow: 0 8px 30px rgba(52, 211, 153, .3);
+    color: #fff;
+    animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* ─── Typography ─── */
+h1 {
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 10px;
+    letter-spacing: -.5px;
+}
+
+h2 {
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -.3px;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2), #e879f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.step-desc {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto 24px;
+}
+
+.step-note {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 12px;
+}
+
+/* ─── Feature Grid (Step 0) ─── */
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.feature-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    transition: transform var(--transition), border-color var(--transition);
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+.feature-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.feature-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.feature-card p {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* ─── Instruction List ─── */
+.instruction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.instruction {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.instruction-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.instruction strong {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.instruction p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.instruction ul.config-list {
+    margin-top: 6px;
+    padding-left: 18px;
+}
+
+.instruction ul.config-list li {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-bottom: 3px;
+}
+
+/* ─── Column chips ─── */
+.columns-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+.col-chip {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-label);
+    white-space: nowrap;
+}
+
+/* ─── Tip Boxes ─── */
+.tip-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(108, 99, 255, .06);
+    border: 1px solid rgba(108, 99, 255, .18);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: 12px;
+}
+
+.tip-box.warning {
+    background: var(--warning-bg);
+    border-color: rgba(251, 191, 36, .25);
+}
+
+.tip-box.success {
+    background: var(--success-bg);
+    border-color: rgba(52, 211, 153, .25);
+}
+
+.tip-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ─── Code Copy ─── */
+.code-copy-area {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, .2);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+}
+
+.copy-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.copy-btn.copied {
+    background: var(--success);
+}
+
+.code-block {
+    padding: 14px;
+    font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    max-height: 180px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* ─── URL Input (Step 3) ─── */
+.url-input-area {
+    margin-bottom: 20px;
+}
+
+.url-input-area label,
+.daily-goal-area label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+}
+
+.optional {
+    font-weight: 400;
+    text-transform: none;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.url-input-area input,
+.daily-goal-area input {
+    width: 100%;
+    padding: 11px 14px;
+    font-family: "Fira Code", Consolas, monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.url-input-area input:focus,
+.daily-goal-area input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.url-validation {
+    font-size: 12px;
+    margin-top: 6px;
+    min-height: 18px;
+}
+
+.url-validation.valid {
+    color: var(--success);
+}
+
+.url-validation.invalid {
+    color: var(--error);
+}
+
+/* ─── Daily Goal ─── */
+.daily-goal-area {
+    margin-bottom: 16px;
+}
+
+.goal-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.goal-input-row input {
+    width: 80px;
+    text-align: center;
+    font-family: inherit;
+}
+
+.goal-suffix {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* ─── How to Use (Step 4) ─── */
+.how-to-use {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.use-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    transition: border-color var(--transition);
+}
+
+.use-step:hover {
+    border-color: var(--accent);
+}
+
+.use-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.use-step p {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+/* ─── Nav Buttons ─── */
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+}
+
+.nav-btn.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.nav-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+.nav-btn.secondary {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.nav-btn.secondary:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+}
+
+/* ─── Links ─── */
+a.link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a.link:hover {
+    text-decoration: underline;
+}
+
+code {
+    background: rgba(108, 99, 255, .12);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: "Fira Code", Consolas, monospace;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 99px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+    .wizard-container {
+        padding: 24px 20px 22px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}
+
+/* ─── Unsafe Tip (shield) ─── */
+.tip-box.unsafe-tip {
+    background: rgba(96, 165, 250, .06);
+    border-color: rgba(96, 165, 250, .22);
+}
+
+/* ─── Creator Footer ─── */
+.creator-footer {
+    text-align: center;
+    padding: 16px 0 0;
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.creator-tag {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    letter-spacing: .2px;
+}
+
+.creator-tag strong {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.vibe-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 5px;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 10px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}

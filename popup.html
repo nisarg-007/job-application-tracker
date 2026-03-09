@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Application Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+  <div class="container">
+    <!-- ─── Header ─── -->
+    <header class="header">
+      <div class="header-left">
+        <div class="header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+            <path d="M16 7V5a4 4 0 0 0-8 0v2" />
+            <line x1="12" y1="12" x2="12" y2="16" />
+          </svg>
+        </div>
+        <div>
+          <h1>Job Tracker</h1>
+        </div>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="Setup Wizard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- ─── Tab Bar ─── -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="track">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+        Track
+      </button>
+      <button class="tab" data-tab="dashboard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 20V10" />
+          <path d="M12 20V4" />
+          <path d="M6 20v-6" />
+        </svg>
+        Dashboard
+      </button>
+    </div>
+
+    <!-- ═══════════ TRACK TAB ═══════════ -->
+    <div class="tab-content active" id="tabTrack">
+      <!-- Duplicate Warning -->
+      <div id="duplicateWarning" class="duplicate-warning" style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <div>
+          <strong>Already tracked!</strong>
+          <span id="duplicateDetails"></span>
+        </div>
+      </div>
+
+      <form id="trackerForm" autocomplete="off">
+        <!-- Job Title -->
+        <div class="field">
+          <label for="jobTitle">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+              <line x1="4" y1="22" x2="4" y2="15" />
+            </svg>
+            Job Title
+          </label>
+          <input type="text" id="jobTitle" placeholder="e.g. Software Engineer" />
+        </div>
+
+        <!-- Company Name -->
+        <div class="field">
+          <label for="companyName">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Company Name
+          </label>
+          <input type="text" id="companyName" placeholder="e.g. Google" />
+        </div>
+
+        <!-- URL (read-only) -->
+        <div class="field">
+          <label for="pageUrl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+            URL
+          </label>
+          <input type="text" id="pageUrl" readonly tabindex="-1" />
+        </div>
+
+        <!-- Date & Time (read-only) -->
+        <div class="field">
+          <label for="dateTime">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Date &amp; Time
+          </label>
+          <input type="text" id="dateTime" readonly tabindex="-1" />
+        </div>
+
+        <!-- Resume Used -->
+        <div class="field">
+          <label for="resumeUsed">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            Resume Used
+          </label>
+          <select id="resumeSelect">
+            <!-- filled from config or storage -->
+          </select>
+          <input type="text" id="resumeCustom" placeholder="Type your custom resume name…"
+            style="display:none; margin-top:6px;" />
+        </div>
+
+        <!-- Likelihood -->
+        <div class="field">
+          <label for="likelihood">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            Likelihood <span class="required">*</span>
+          </label>
+          <select id="likelihood" required>
+            <option value="High">🟢 High</option>
+            <option value="Medium" selected>🟡 Medium</option>
+            <option value="Low">🔴 Low</option>
+          </select>
+        </div>
+
+        <!-- Save button -->
+        <button type="submit" id="saveBtn">
+          <span class="btn-text">Save to Sheet</span>
+          <span class="btn-loader" style="display:none;">
+            <svg class="spinner" width="18" height="18" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="30 70"
+                stroke-linecap="round" />
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <!-- Status area -->
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- ═══════════ DASHBOARD TAB ═══════════ -->
+    <div class="tab-content" id="tabDashboard">
+      <!-- Daily Goal Ring -->
+      <div class="goal-section">
+        <div class="goal-ring-container">
+          <svg class="goal-ring" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="goalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6c63ff" />
+                <stop offset="100%" stop-color="#9b59b6" />
+              </linearGradient>
+            </defs>
+            <circle class="goal-ring-bg" cx="50" cy="50" r="42" />
+            <circle class="goal-ring-fill" id="goalRingFill" cx="50" cy="50" r="42" />
+          </svg>
+          <div class="goal-ring-text">
+            <span class="goal-count" id="goalCount">0</span>
+            <span class="goal-label">of <span id="goalTotal">5</span></span>
+          </div>
+        </div>
+        <div class="goal-info">
+          <h3>Today's Goal</h3>
+          <p class="goal-motivate" id="goalMotivate">Start tracking to see your progress!</p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Total Apps</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statWeek">0</div>
+          <div class="stat-label">This Week</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-value" id="statFollowUp">0</div>
+          <div class="stat-label">Need Follow-up</div>
+        </div>
+      </div>
+
+      <!-- Likelihood Breakdown -->
+      <div class="breakdown-section">
+        <h4>Likelihood Breakdown</h4>
+        <div class="breakdown-bars">
+          <div class="breakdown-row">
+            <span class="breakdown-label">🟢 High</span>
+            <div class="breakdown-bar-track">
+              <div class="breakdown-bar high" id="barHigh"></div>
+            </div>
+            <span class="breakdown-count" id="countHigh">0</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">🟡 Medium</span>
+            <div class="breakdown-bar-track">
+              <div class="breakdown-bar medium" id="barMedium"></div>
+            </div>
+            <span class="breakdown-count" id="countMedium">0</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">🔴 Low</span>
+            <div class="breakdown-bar-track">
+              <div class="breakdown-bar low" id="barLow"></div>
+            </div>
+            <span class="breakdown-count" id="countLow">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Sources -->
+      <div class="sources-section">
+        <h4>Top Sources</h4>
+        <div class="source-chips" id="sourceChips">
+          <span class="source-chip empty">No data yet</span>
+        </div>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="recent-section">
+        <h4>Recent Applications</h4>
+        <div class="recent-list" id="recentList">
+          <div class="recent-empty">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <p>No applications tracked yet.<br />Start by clicking "Track" on a job page!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Creator Credit -->
+    <footer class="creator-footer">
+      <span class="creator-tag">crafted by <strong>Nisarg Shah</strong> <span class="vibe-badge">Vibe
+          Coder</span></span>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>

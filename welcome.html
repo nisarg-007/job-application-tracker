@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Tracker — Welcome Setup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="welcome.css" />
+</head>
+
+<body>
+    <div class="wizard-container">
+        <!-- ─── Progress Bar ─── -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="step-indicators" id="stepIndicators">
+            <button class="step-dot active" data-step="0"><span>1</span></button>
+            <button class="step-dot" data-step="1"><span>2</span></button>
+            <button class="step-dot" data-step="2"><span>3</span></button>
+            <button class="step-dot" data-step="3"><span>4</span></button>
+            <button class="step-dot" data-step="4"><span>5</span></button>
+        </div>
+
+        <!-- ═══════════ STEP 0: Welcome ═══════════ -->
+        <section class="step active" data-step="0">
+            <div class="step-icon welcome-icon">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 7V5a4 4 0 0 0-8 0v2" />
+                    <line x1="12" y1="12" x2="12" y2="16" />
+                </svg>
+            </div>
+            <h1>Welcome to <span class="gradient-text">Job Tracker</span></h1>
+            <p class="step-desc">
+                Track every job application in one click. We'll save everything to a Google Sheet
+                so you never lose track of where you applied.
+            </p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>One-Click Save</h3>
+                    <p>Auto-detect job title & company from any job posting page</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Dashboard</h3>
+                    <p>Track your daily goal, stats, and application history</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Reminders</h3>
+                    <p>Get nudged to follow up on applications after 7 days</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚠️</div>
+                    <h3>No Duplicates</h3>
+                    <p>We warn you if you've already tracked a job posting</p>
+                </div>
+            </div>
+            <p class="step-note">Let's get you set up in under 3 minutes! ⚡</p>
+        </section>
+
+        <!-- ═══════════ STEP 1: Create Google Sheet ═══════════ -->
+        <section class="step" data-step="1">
+            <div class="step-icon sheet-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="8" y1="13" x2="16" y2="13" />
+                    <line x1="8" y1="17" x2="16" y2="17" />
+                </svg>
+            </div>
+            <h2>Create Your Google Sheet</h2>
+            <p class="step-desc">We need a Google Sheet to store your applications. Follow these steps:</p>
+
+            <div class="instruction-list">
+                <div class="instruction">
+                    <div class="instruction-num">1</div>
+                    <div>
+                        <strong>Open Google Sheets</strong>
+                        <p>Go to <a href="https://sheets.new" target="_blank" class="link">sheets.new</a> — this creates
+                            a blank spreadsheet instantly.</p>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">2</div>
+                    <div>
+                        <strong>Name the sheet tab</strong>
+                        <p>At the bottom of the screen, double-click the tab name and rename it to exactly:
+                            <code>Applications</code>
+                        </p>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">3</div>
+                    <div>
+                        <strong>Add column headers</strong>
+                        <p>Type these headers in Row 1, one per cell (A1 through I1):</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns-preview">
+                <div class="col-chip">A: Timestamp</div>
+                <div class="col-chip">B: Application Date</div>
+                <div class="col-chip">C: Job Title</div>
+                <div class="col-chip">D: Company Name</div>
+                <div class="col-chip">E: URL</div>
+                <div class="col-chip">F: Resume Used</div>
+                <div class="col-chip">G: Likelihood</div>
+                <div class="col-chip">H: Source</div>
+                <div class="col-chip">I: Notes</div>
+            </div>
+
+            <div class="tip-box">
+                <span class="tip-icon">💡</span>
+                <span><strong>Pro tip:</strong> Bold the header row and freeze it (View → Freeze → 1 row) so it always
+                    stays visible.</span>
+            </div>
+        </section>
+
+        <!-- ═══════════ STEP 2: Apps Script ═══════════ -->
+        <section class="step" data-step="2">
+            <div class="step-icon script-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                </svg>
+            </div>
+            <h2>Set Up the Backend Script</h2>
+            <p class="step-desc">The extension sends data to a tiny script that writes to your sheet. Here's how to set
+                it up:</p>
+
+            <div class="instruction-list">
+                <div class="instruction">
+                    <div class="instruction-num">1</div>
+                    <div>
+                        <strong>Open Apps Script</strong>
+                        <p>In your Google Sheet: <strong>Extensions → Apps Script</strong></p>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">2</div>
+                    <div>
+                        <strong>Replace all code</strong>
+                        <p>Delete everything in <code>Code.gs</code>, then click the button below to copy the script
+                            code, and paste it in.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-copy-area">
+                <div class="code-header">
+                    <span>📄 Code.gs</span>
+                    <button id="copyScriptBtn" class="copy-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy Code
+                    </button>
+                </div>
+                <pre class="code-block" id="scriptCode">Loading script code...</pre>
+            </div>
+
+            <div class="instruction-list" style="margin-top:16px;">
+                <div class="instruction">
+                    <div class="instruction-num">3</div>
+                    <div>
+                        <strong>Save &amp; Deploy</strong>
+                        <p>Click 💾 Save, then <strong>Deploy → New deployment</strong></p>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">4</div>
+                    <div>
+                        <strong>Configure deployment</strong>
+                        <p>Click ⚙ gear → <strong>Web app</strong></p>
+                        <ul class="config-list">
+                            <li>Execute as: <code>Me</code></li>
+                            <li>Who has access: <code>Anyone</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">5</div>
+                    <div>
+                        <strong>Authorize &amp; Copy URL</strong>
+                        <p>Click Deploy → Authorize → Allow → <strong>Copy the Web App URL</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box unsafe-tip">
+                <span class="tip-icon">🛡️</span>
+                <span>
+                    <strong>Seeing "Google hasn't verified this app"?</strong> That's normal!<br />
+                    This warning appears for all personal scripts. It's YOUR script accessing YOUR sheet — it's
+                    completely safe.<br /><br />
+                    To proceed: Click <strong>"Advanced"</strong> (bottom-left) → Click <strong>"Go to [your project
+                        name] (unsafe)"</strong> → Click <strong>"Allow"</strong>.
+                </span>
+            </div>
+
+            <div class="tip-box warning">
+                <span class="tip-icon">⚠️</span>
+                <span>The URL looks like: <code>https://script.google.com/macros/s/AKfycb.../exec</code><br />Keep this
+                    page open — you'll paste the URL in the next step!</span>
+            </div>
+        </section>
+
+        <!-- ═══════════ STEP 3: Paste URL ═══════════ -->
+        <section class="step" data-step="3">
+            <div class="step-icon link-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+            </div>
+            <h2>Connect to Your Sheet</h2>
+            <p class="step-desc">Paste the Web App URL you just copied. This tells the extension where to send your job
+                application data.</p>
+
+            <div class="url-input-area">
+                <label for="webAppUrl">Web App URL</label>
+                <input type="url" id="webAppUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+                    autocomplete="off" spellcheck="false" />
+                <div class="url-validation" id="urlValidation"></div>
+            </div>
+
+            <div class="daily-goal-area">
+                <label for="dailyGoal">Daily application goal <span class="optional">(optional)</span></label>
+                <div class="goal-input-row">
+                    <input type="number" id="dailyGoal" min="1" max="50" value="5" />
+                    <span class="goal-suffix">applications / day</span>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <span class="tip-icon">🔒</span>
+                <span>Your URL is stored locally in this browser only. It is never sent anywhere except to your own
+                    Google Apps Script.</span>
+            </div>
+        </section>
+
+        <!-- ═══════════ STEP 4: Done ═══════════ -->
+        <section class="step" data-step="4">
+            <div class="step-icon done-icon">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+            </div>
+            <h1>You're All Set! 🎉</h1>
+            <p class="step-desc">
+                Your Job Tracker is ready to go. Here's how to use it:
+            </p>
+
+            <div class="how-to-use">
+                <div class="use-step">
+                    <div class="use-num">1</div>
+                    <p>Navigate to <strong>any job posting</strong> (LinkedIn, Indeed, Greenhouse, etc.)</p>
+                </div>
+                <div class="use-step">
+                    <div class="use-num">2</div>
+                    <p>Click the <strong>Job Tracker icon</strong> in your Chrome toolbar</p>
+                </div>
+                <div class="use-step">
+                    <div class="use-num">3</div>
+                    <p>Review the auto-detected info, fill in resume & likelihood</p>
+                </div>
+                <div class="use-step">
+                    <div class="use-num">4</div>
+                    <p>Hit <strong>"Save to Sheet"</strong> — done! Check your Google Sheet ✨</p>
+                </div>
+            </div>
+
+            <div class="tip-box success">
+                <span class="tip-icon">✅</span>
+                <span><strong>Tip:</strong> Click the extension icon anytime to see your Dashboard with stats, daily
+                    goal progress, and recent applications!</span>
+            </div>
+        </section>
+
+        <!-- ─── Navigation Buttons ─── -->
+        <div class="nav-buttons">
+            <button id="prevBtn" class="nav-btn secondary" style="visibility:hidden;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+                Back
+            </button>
+            <button id="nextBtn" class="nav-btn primary">
+                Let's Go!
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Creator Credit -->
+        <footer class="creator-footer">
+            <span class="creator-tag">crafted by <strong>Nisarg Shah</strong> <span class="vibe-badge">Vibe
+                    Coder</span></span>
+        </footer>
+    </div>
+
+    <script src="welcome.js"></script>
+</body>
+
+</html>
