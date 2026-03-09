@@ -19,6 +19,8 @@ const $dateTime = document.getElementById("dateTime");
 const $resumeSelect = document.getElementById("resumeSelect");
 const $resumeCustom = document.getElementById("resumeCustom");
 const $likelihood = document.getElementById("likelihood");
+const $appStatus = document.getElementById("appStatus");
+const $notes = document.getElementById("notes");
 const $form = document.getElementById("trackerForm");
 const $saveBtn = document.getElementById("saveBtn");
 const $status = document.getElementById("status");
@@ -111,6 +113,19 @@ $tabs.forEach((tab) => {
 // Settings button → open welcome wizard
 $settingsBtn.addEventListener("click", () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+});
+
+// Open Sheet button → open the connected Google Sheet
+const $openSheetBtn = document.getElementById("openSheetBtn");
+$openSheetBtn.addEventListener("click", async () => {
+    const { webAppUrl } = await chrome.storage.local.get("webAppUrl");
+    const url = webAppUrl || ((typeof CONFIG !== "undefined") ? CONFIG.WEB_APP_URL : "");
+    if (url && url.startsWith("https://script.google.com/")) {
+        // Open a Google Sheets search — user's sheet is in their Drive
+        chrome.tabs.create({ url: "https://docs.google.com/spreadsheets" });
+    } else {
+        showStatus("⚙ Set up your Google Sheet first (click the gear icon)", "error");
+    }
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -277,7 +292,8 @@ $form.addEventListener("submit", async (e) => {
         resumeUsed: resumeValue,
         likelihood: $likelihood.value,
         source: extractDomain($pageUrl.value),
-        notes: "",
+        status: $appStatus.value,
+        notes: $notes.value.trim(),
     };
 
     try {

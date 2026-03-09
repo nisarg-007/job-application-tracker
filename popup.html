@@ -28,13 +28,22 @@
           <h1>Job Tracker</h1>
         </div>
       </div>
-      <button id="settingsBtn" class="icon-btn" title="Setup Wizard">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3" />
-          <path
-            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      </button>
+      <div class="header-actions">
+        <button id="openSheetBtn" class="icon-btn" title="Open My Google Sheet">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </button>
+        <button id="settingsBtn" class="icon-btn" title="Setup Wizard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- ─── Tab Bar ─── -->
@@ -141,19 +150,51 @@
             style="display:none; margin-top:6px;" />
         </div>
 
-        <!-- Likelihood -->
+        <!-- Confidence Level (was Likelihood) -->
         <div class="field">
           <label for="likelihood">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
-            Likelihood <span class="required">*</span>
+            Confidence <span class="label-hint">(will I hear back?)</span>
           </label>
           <select id="likelihood" required>
-            <option value="High">🟢 High</option>
-            <option value="Medium" selected>🟡 Medium</option>
-            <option value="Low">🔴 Low</option>
+            <option value="High">🟢 High — Great fit, strong match</option>
+            <option value="Medium" selected>🟡 Medium — Worth a shot</option>
+            <option value="Low">🔴 Low — Long shot / stretch role</option>
           </select>
+        </div>
+
+        <!-- Application Status -->
+        <div class="field">
+          <label for="appStatus">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            Status
+          </label>
+          <select id="appStatus">
+            <option value="Applied" selected>📤 Applied</option>
+            <option value="Phone Screen">📞 Phone Screen</option>
+            <option value="Interview">🎤 Interview</option>
+            <option value="Offer">🎉 Offer</option>
+            <option value="Rejected">❌ Rejected</option>
+            <option value="Ghosted">👻 Ghosted</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="field">
+          <label for="notes">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            Notes <span class="label-hint">(optional)</span>
+          </label>
+          <textarea id="notes" rows="2"
+            placeholder="Referral from..., Career fair, Custom cover letter, etc."></textarea>
         </div>
 
         <!-- Save button -->

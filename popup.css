@@ -111,6 +111,11 @@ body {
     color: var(--accent);
 }
 
+.header-actions {
+    display: flex;
+    gap: 6px;
+}
+
 /* ─── Tab Bar ─── */
 .tab-bar {
     display: flex;
@@ -231,8 +236,17 @@ body {
     font-size: 13px;
 }
 
+.label-hint {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
 .field input,
-.field select {
+.field select,
+.field textarea {
     width: 100%;
     padding: 8px 11px;
     font-family: inherit;
@@ -246,10 +260,18 @@ body {
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
     border-color: var(--border-focus);
     background: var(--bg-input-focus);
     box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 42px;
+    max-height: 100px;
+    line-height: 1.5;
 }
 
 .field input[readonly] {

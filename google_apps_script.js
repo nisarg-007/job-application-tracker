@@ -15,7 +15,7 @@
  *  1️⃣  CREATE THE GOOGLE SHEET
  *     • Go to https://sheets.google.com → Blank spreadsheet.
  *     • Rename the first sheet tab to: Applications
- *     • In Row 1, type these EXACT column headers (A1 → I1):
+ *     • In Row 1, type these EXACT column headers (A1 → J1):
  *
  *       A1: Timestamp
  *       B1: Application Date
@@ -23,9 +23,10 @@
  *       D1: Company Name
  *       E1: URL
  *       F1: Resume Used
- *       G1: Likelihood
+ *       G1: Confidence Level
  *       H1: Source
- *       I1: Notes
+ *       I1: Status
+ *       J1: Notes
  *
  *  2️⃣  OPEN THE SCRIPT EDITOR
  *     • In the Sheet menu bar: Extensions → Apps Script.
@@ -92,14 +93,15 @@ function doPost(e) {
         // Build the row in the same column order as the headers
         const row = [
             data.timestamp || new Date().toISOString(),  // A — Timestamp
-            data.applicationDate || "",                        // B — Application Date
-            data.jobTitle || "",                        // C — Job Title
-            data.companyName || "",                        // D — Company Name
-            data.url || "",                        // E — URL
-            data.resumeUsed || "",                        // F — Resume Used
-            data.likelihood || "",                        // G — Likelihood
-            data.source || "",                        // H — Source
-            data.notes || "",                        // I — Notes
+            data.applicationDate || "",                  // B — Application Date
+            data.jobTitle || "",                         // C — Job Title
+            data.companyName || "",                      // D — Company Name
+            data.url || "",                              // E — URL
+            data.resumeUsed || "",                       // F — Resume Used
+            data.likelihood || "",                       // G — Confidence Level
+            data.source || "",                           // H — Source
+            data.status || "Applied",                    // I — Status
+            data.notes || "",                            // J — Notes
         ];
 
         // Append as a new row after the last row with data

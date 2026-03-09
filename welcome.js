@@ -52,6 +52,7 @@ function doPost(e) {
       data.resumeUsed      || "",
       data.likelihood      || "",
       data.source          || "",
+      data.status          || "Applied",
       data.notes           || "",
     ];
 
