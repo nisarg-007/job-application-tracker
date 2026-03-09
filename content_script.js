@@ -49,6 +49,11 @@
 
     const COMPANY_SELECTORS = [
         // LinkedIn
+        ".job-details-jobs-unified-top-card__company-name a",
+        ".job-details-jobs-unified-top-card__company-name",
+        ".job-details-jobs-unified-top-card__primary-description-container a",
+        ".job-details-jobs-unified-top-card__primary-description a",
+        ".job-details-jobs-unified-top-card__primary-description",
         ".topcard__org-name-link",
         ".jobs-unified-top-card__company-name a",
         ".jobs-unified-top-card__company-name",
@@ -124,6 +129,21 @@
         return "";
     }
 
+    // ───── Teal‑specific company extraction ─────
+    function companyFromTeal() {
+        try {
+            if (location.hostname.includes("tealhq.com")) {
+                const titleEl = document.querySelector("h1");
+                if (titleEl && titleEl.nextElementSibling) {
+                    const text = titleEl.nextElementSibling.innerText || titleEl.nextElementSibling.textContent || "";
+                    const parts = text.split("·");
+                    if (parts.length > 0) return parts[0].trim();
+                }
+            }
+        } catch (_) { }
+        return "";
+    }
+
     function extractSalary() {
         const text = document.body.innerText || "";
         const match = text.match(/\$[\d,]{2,7}(?:\.\d+)?\s*(?:k|K|m|M)?\s*(?:-|to|—)\s*\$[\d,]{2,7}(?:\.\d+)?\s*(?:k|K|m|M)?/i);
@@ -151,7 +171,13 @@
         let jobTitle = queryFirst(TITLE_SELECTORS);
         if (!jobTitle) jobTitle = titleFromMeta();
 
-        let companyName = queryFirst(COMPANY_SELECTORS);
+        let companyName = "";
+
+        if (location.hostname.includes("tealhq.com")) {
+            companyName = companyFromTeal();
+        }
+
+        if (!companyName) companyName = queryFirst(COMPANY_SELECTORS);
         if (!companyName) companyName = companyFromMeta();
         if (!companyName) companyName = companyFromLeverUrl();
 
