@@ -59,7 +59,7 @@ Want to install without using the Web Store? You can easily load the extension d
 ### Step 2: Set Up Your Google Sheet
 When you first install, the **Setup Wizard** opens automatically and walks you through:
 
-1. 📝 Creating a Google Sheet with the right columns
+1. 📝 Creating a Google Sheet, renaming the first sheet tab to exactly **`Applications`** (instead of Sheet1), and adding the right columns
 2. 📋 Copying the backend script (one-click copy!)
 3. 🔗 Pasting your Web App URL (and optionally your actual Sheet URL for quick access)
 4. 🎯 Setting your daily application goal
