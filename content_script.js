@@ -180,6 +180,7 @@
             // Greenhouse
             ".location",
             "#header .location",
+            ".job__location",
 
             // Lever
             ".sort-by-time.posting-category",
@@ -204,6 +205,14 @@
         ];
 
         let domLoc = queryFirst(LOCATION_SELECTORS) || "";
+
+        // Secondary fallback for Greenhouse specifically (og:description often holds location)
+        if (!domLoc && location.hostname.includes("greenhouse.io")) {
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc && ogDesc.content) {
+                domLoc = ogDesc.content.trim();
+            }
+        }
 
         // Scan full body text for remote/hybrid indicator (removed 3000 limit)
         const text = document.body.innerText || "";
