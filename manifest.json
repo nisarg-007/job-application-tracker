@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "description": "Track job applications into Google Sheets with one click. Includes dashboard, daily goals, duplicate detection, and follow-up reminders.",
     "author": "Nisarg Shah [Vibe Coder]",
-    "homepage_url": "https://github.com/nisarg-shah",
+    "homepage_url": "https://github.com/nisarg-007/job-application-tracker",
     "icons": {
         "16": "icons/icon16.png",
         "48": "icons/icon48.png",
