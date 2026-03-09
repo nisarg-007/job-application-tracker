@@ -113,7 +113,7 @@
         return "";
     }
 
-    // ───── Company extraction from URL (Lever, Greenhouse) ─────
+    // ───── Company extraction from URL (Lever, Greenhouse, Workday) ─────
     function companyFromUrl() {
         try {
             const hostname = location.hostname;
@@ -135,6 +135,8 @@
                         return parts[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
                     }
                 }
+            } else if (hostname.includes("myworkdayjobs.com")) {
+                return hostname.split(".")[0].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
             }
         } catch (_) { }
         return "";
@@ -255,6 +257,19 @@
         if (!companyName) companyName = queryFirst(COMPANY_SELECTORS);
         if (!companyName) companyName = companyFromMeta();
         if (!companyName) companyName = companyFromUrl();
+
+        // ───── Board-specific Title/Company overrides ─────
+        if (location.hostname.includes("paylocity.com") && jobTitle.includes(" - ")) {
+            // Paylocity often merges "Company - Title" in the document title
+            const splitOpts = jobTitle.split(" - ");
+            if (splitOpts.length >= 2) {
+                // If company wasn't found or was incorrectly assumed, overwrite it
+                if (!companyName || companyName === jobTitle) {
+                    companyName = splitOpts[0].trim();
+                }
+                jobTitle = splitOpts.slice(1).join(" - ").trim();
+            }
+        }
 
         return {
             jobTitle: jobTitle || "",
