@@ -8,7 +8,7 @@
 // ============================================================
 
 const CONFIG = {
-    WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxMu4PN_Bfr2utlcu4X7hv36MmvaddjJgEs5dbriT6x6bR2uqZYKszXQsz9SREzuURc/exec",
+    WEB_APP_URL: "YOUR_WEB_APP_URL_HERE",
 
     // Default resume options shown in the dropdown.
     // Edit this list to match your actual resume names.
@@ -16,7 +16,6 @@ const CONFIG = {
         "General Resume",
         "Software Engineer Resume",
         "Data Analyst Resume",
-        "Frontend Resume",
-        "Custom (type below)"
+        "Frontend Resume"
     ]
 };
