@@ -60,6 +60,22 @@ function extractDomain(url) {
     catch { return ""; }
 }
 
+/** Retry wrapper for chrome.runtime.sendMessage to handle transient SW wake-up errors */
+async function sendMessageWithRetry(msg, retries = 3, delay = 300) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await chrome.runtime.sendMessage(msg);
+            return response;
+        } catch (err) {
+            if (i < retries - 1) {
+                await new Promise(r => setTimeout(r, delay));
+            } else {
+                throw err;
+            }
+        }
+    }
+}
+
 function formatDateTime(date) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const d = String(date.getDate()).padStart(2, "0");
@@ -245,7 +261,7 @@ async function init() {
         applyScrapedData(data, tab.title);
     } catch {
         try {
-            await chrome.runtime.sendMessage({ action: "ensureContentScript", tabId: tab.id });
+            await sendMessageWithRetry({ action: "ensureContentScript", tabId: tab.id });
             await new Promise((r) => setTimeout(r, 250));
             const data = await messageScraper(tab.id);
             applyScrapedData(data, tab.title);
@@ -278,7 +294,7 @@ function applyScrapedData(data, fallbackTitle) {
 
 async function checkDuplicate(url) {
     try {
-        const result = await chrome.runtime.sendMessage({ action: "checkDuplicate", url });
+        const result = await sendMessageWithRetry({ action: "checkDuplicate", url });
         if (result && result.isDuplicate) {
             const app = result.existingApp;
             $dupDetails.textContent = `You saved "${app.jobTitle}" at ${app.companyName || "—"} on ${new Date(app.savedAt).toLocaleDateString()}.`;
@@ -343,7 +359,7 @@ $form.addEventListener("submit", async (e) => {
         });
 
         // Save to local history (for dashboard)
-        await chrome.runtime.sendMessage({ action: "saveApplication", data: payload });
+        await sendMessageWithRetry({ action: "saveApplication", data: payload });
 
         showStatus("✅  Saved to Google Sheet!", "success");
 
@@ -363,7 +379,7 @@ $form.addEventListener("submit", async (e) => {
 
 async function loadDashboard() {
     try {
-        const stats = await chrome.runtime.sendMessage({ action: "getStats" });
+        const stats = await sendMessageWithRetry({ action: "getStats" });
         if (!stats) return;
 
         // ── Daily Goal Ring ──
