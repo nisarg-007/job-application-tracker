@@ -19,6 +19,7 @@ const $nextBtn = document.getElementById("nextBtn");
 const $copyBtn = document.getElementById("copyScriptBtn");
 const $scriptCode = document.getElementById("scriptCode");
 const $urlInput = document.getElementById("webAppUrl");
+const $sheetUrlInput = document.getElementById("sheetUrl");
 const $urlValid = document.getElementById("urlValidation");
 const $dailyGoal = document.getElementById("dailyGoal");
 
@@ -208,10 +209,12 @@ $dots.forEach((dot) => {
 
 async function saveSettings() {
   const url = $urlInput.value.trim();
+  const sUrl = $sheetUrlInput.value.trim();
   const goal = parseInt($dailyGoal.value) || 5;
 
   await chrome.storage.local.set({
     webAppUrl: url,
+    sheetUrl: sUrl,
     dailyGoal: goal,
     setupComplete: true,
     installedAt: new Date().toISOString(),
@@ -225,8 +228,9 @@ async function saveSettings() {
 
 async function init() {
   try {
-    const data = await chrome.storage.local.get(["webAppUrl", "dailyGoal"]);
+    const data = await chrome.storage.local.get(["webAppUrl", "sheetUrl", "dailyGoal"]);
     if (data.webAppUrl) $urlInput.value = data.webAppUrl;
+    if (data.sheetUrl) $sheetUrlInput.value = data.sheetUrl;
     if (data.dailyGoal) $dailyGoal.value = data.dailyGoal;
   } catch { /* no prior data */ }
 }

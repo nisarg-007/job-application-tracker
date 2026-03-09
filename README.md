@@ -61,7 +61,7 @@ When you first install, the **Setup Wizard** opens automatically and walks you t
 
 1. 📝 Creating a Google Sheet with the right columns
 2. 📋 Copying the backend script (one-click copy!)
-3. 🔗 Pasting your Web App URL
+3. 🔗 Pasting your Web App URL (and optionally your actual Sheet URL for quick access)
 4. 🎯 Setting your daily application goal
 
 **That's it.** You're ready to track.
