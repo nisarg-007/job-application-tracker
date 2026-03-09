@@ -14,6 +14,8 @@
 // ─── DOM refs: Track tab ──────────────────────────────────
 const $jobTitle = document.getElementById("jobTitle");
 const $companyName = document.getElementById("companyName");
+const $location = document.getElementById("location");
+const $salary = document.getElementById("salary");
 const $pageUrl = document.getElementById("pageUrl");
 const $dateTime = document.getElementById("dateTime");
 const $resumeSelect = document.getElementById("resumeSelect");
@@ -234,6 +236,8 @@ function applyScrapedData(data, fallbackTitle) {
     if (data.jobTitle) $jobTitle.value = data.jobTitle;
     else if (fallbackTitle) $jobTitle.value = fallbackTitle;
     if (data.companyName) $companyName.value = data.companyName;
+    if (data.location) $location.value = data.location;
+    if (data.salary) $salary.value = data.salary;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -289,6 +293,8 @@ $form.addEventListener("submit", async (e) => {
         jobTitle: $jobTitle.value.trim(),
         companyName: $companyName.value.trim(),
         url: $pageUrl.value,
+        location: $location.value.trim(),
+        salary: $salary.value.trim(),
         resumeUsed: resumeValue,
         likelihood: $likelihood.value,
         source: extractDomain($pageUrl.value),

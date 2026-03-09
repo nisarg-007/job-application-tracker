@@ -15,18 +15,20 @@
  *  1️⃣  CREATE THE GOOGLE SHEET
  *     • Go to https://sheets.google.com → Blank spreadsheet.
  *     • Rename the first sheet tab to: Applications
- *     • In Row 1, type these EXACT column headers (A1 → J1):
+ *     • In Row 1, type these EXACT column headers (A1 → L1):
  *
  *       A1: Timestamp
  *       B1: Application Date
  *       C1: Job Title
  *       D1: Company Name
  *       E1: URL
- *       F1: Resume Used
- *       G1: Confidence Level
- *       H1: Source
- *       I1: Status
- *       J1: Notes
+ *       F1: Location
+ *       G1: Salary
+ *       H1: Resume Used
+ *       I1: Confidence Level
+ *       J1: Source
+ *       K1: Status
+ *       L1: Notes
  *
  *  2️⃣  OPEN THE SCRIPT EDITOR
  *     • In the Sheet menu bar: Extensions → Apps Script.
@@ -97,11 +99,13 @@ function doPost(e) {
             data.jobTitle || "",                         // C — Job Title
             data.companyName || "",                      // D — Company Name
             data.url || "",                              // E — URL
-            data.resumeUsed || "",                       // F — Resume Used
-            data.likelihood || "",                       // G — Confidence Level
-            data.source || "",                           // H — Source
-            data.status || "Applied",                    // I — Status
-            data.notes || "",                            // J — Notes
+            data.location || "",                         // F — Location
+            data.salary || "",                           // G — Salary
+            data.resumeUsed || "",                       // H — Resume Used
+            data.likelihood || "",                       // I — Confidence Level
+            data.source || "",                           // J — Source
+            data.status || "Applied",                    // K — Status
+            data.notes || "",                            // L — Notes
         ];
 
         // Append as a new row after the last row with data

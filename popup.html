@@ -5,9 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Job Application Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="popup.css" />
 </head>
 
@@ -103,6 +100,30 @@
             Company Name
           </label>
           <input type="text" id="companyName" placeholder="e.g. Google" />
+        </div>
+
+        <!-- Location -->
+        <div class="field">
+          <label for="location">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Location
+          </label>
+          <input type="text" id="location" placeholder="e.g. Remote, Hybrid, San Francisco" />
+        </div>
+
+        <!-- Salary -->
+        <div class="field">
+          <label for="salary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            Salary / Comp
+          </label>
+          <input type="text" id="salary" placeholder="e.g. $100k - $120k" />
         </div>
 
         <!-- URL (read-only) -->

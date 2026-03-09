@@ -124,6 +124,27 @@
         return "";
     }
 
+    function extractSalary() {
+        const text = document.body.innerText || "";
+        const match = text.match(/\$[\d,]{2,7}(?:\.\d+)?\s*(?:k|K|m|M)?\s*(?:-|to|—)\s*\$[\d,]{2,7}(?:\.\d+)?\s*(?:k|K|m|M)?/i);
+        if (match) return match[0];
+
+        const singleMatch = text.match(/(?:Salary|Pay|Compensation).*?(\$[\d,]{3,7}(?:\.\d+)?\s*(?:k|K|m|M)?)/i);
+        if (singleMatch) return singleMatch[1];
+
+        return "";
+    }
+
+    function extractLocation() {
+        const text = document.body.innerText.substring(0, 3000) || "";
+        const match = text.match(/\b(Remote|Hybrid|On-site|Onsite)\b/i);
+        if (match) {
+            let loc = match[1].toLowerCase();
+            return loc === "onsite" ? "On-site" : loc.charAt(0).toUpperCase() + loc.slice(1);
+        }
+        return "";
+    }
+
     // ───────── Main scraper ─────────
 
     function scrapeJobData() {
@@ -134,7 +155,12 @@
         if (!companyName) companyName = companyFromMeta();
         if (!companyName) companyName = companyFromLeverUrl();
 
-        return { jobTitle: jobTitle || "", companyName: companyName || "" };
+        return {
+            jobTitle: jobTitle || "",
+            companyName: companyName || "",
+            salary: extractSalary(),
+            location: extractLocation()
+        };
     }
 
     // ───────── Message listener ─────────

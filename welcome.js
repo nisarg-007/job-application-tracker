@@ -49,6 +49,8 @@ function doPost(e) {
       data.jobTitle        || "",
       data.companyName     || "",
       data.url             || "",
+      data.location        || "",
+      data.salary          || "",
       data.resumeUsed      || "",
       data.likelihood      || "",
       data.source          || "",
