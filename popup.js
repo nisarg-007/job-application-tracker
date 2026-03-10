@@ -19,8 +19,6 @@ const $salary = document.getElementById("salary");
 const $pageUrl = document.getElementById("pageUrl");
 const $dateTime = document.getElementById("dateTime");
 const $resumeSelect = document.getElementById("resumeSelect");
-const $resumeCustom = document.getElementById("resumeCustom");
-const $likelihood = document.getElementById("likelihood");
 const $appStatus = document.getElementById("appStatus");
 const $notes = document.getElementById("notes");
 const $form = document.getElementById("trackerForm");
@@ -48,8 +46,30 @@ const $recentList = document.getElementById("recentList");
 
 // ─── DOM refs: Tabs & navigation ─────────────────────────
 const $tabs = document.querySelectorAll(".tab");
-const $tabContents = { track: document.getElementById("tabTrack"), dashboard: document.getElementById("tabDashboard") };
+const $tabContents = {
+    track: document.getElementById("tabTrack"),
+    dashboard: document.getElementById("tabDashboard"),
+    settings: document.getElementById("tabSettings")
+};
 const $settingsBtn = document.getElementById("settingsBtn");
+
+// ─── DOM refs: Settings tab ───────────────────────────────
+const $newResumeName = document.getElementById("newResumeName");
+const $newResumeFile = document.getElementById("newResumeFile");
+const $newResumeFileText = document.getElementById("newResumeFileText");
+const $addResumeBtn = document.getElementById("addResumeBtn");
+const $addResumeStatus = document.getElementById("addResumeStatus");
+const $resumeLibraryList = document.getElementById("resumeLibraryList");
+const $resumeLibraryEmpty = document.getElementById("resumeLibraryEmpty");
+const $settingsWebAppUrl = document.getElementById("settingsWebAppUrl");
+const $settingsSheetUrl = document.getElementById("settingsSheetUrl");
+const $settingsDailyGoal = document.getElementById("settingsDailyGoal");
+const $saveConnectionBtn = document.getElementById("saveConnectionBtn");
+const $settingsStatus = document.getElementById("settingsStatus");
+
+// ─── DOM refs: Tailored resume ────────────────────────────
+const $tailoredResumeFile = document.getElementById("tailoredResumeFile");
+const $tailoredResumeFileText = document.getElementById("tailoredResumeFileText");
 
 // ═══════════════════════════════════════════════════════════
 //  HELPERS
@@ -116,6 +136,7 @@ $tabs.forEach((tab) => {
         Object.values($tabContents).forEach((c) => c.classList.remove("active"));
         $tabContents[target].classList.add("active");
         if (target === "dashboard") loadDashboard();
+        if (target === "settings") loadSettingsTab();
     });
 });
 
@@ -160,51 +181,355 @@ $openSheetBtn.addEventListener("click", async () => {
 });
 
 // ═══════════════════════════════════════════════════════════
-//  RESUME DROPDOWN — Smart memory: custom names auto-save
+//  FILE HELPERS
 // ═══════════════════════════════════════════════════════════
 
-async function populateResumeDropdown() {
-    // Start with defaults from config
-    const defaults = (typeof CONFIG !== "undefined" && CONFIG.RESUME_OPTIONS) || ["General Resume"];
-
-    // Load user-added custom resumes from storage
-    const { customResumes = [] } = await chrome.storage.local.get("customResumes");
-
-    // Merge: defaults first, then custom (no duplicates), then "+ Add New" at the end
-    const allOptions = [...defaults.filter(o => !o.toLowerCase().includes("custom"))];
-    customResumes.forEach((r) => {
-        if (!allOptions.includes(r)) allOptions.push(r);
+/** Read a File object as a base64 string (data URI stripped) */
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]); // strip "data:...;base64,"
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
     });
-    allOptions.push("+ Add New Resume");
+}
 
-    // Clear and rebuild
+// Show filename when user picks a file in the settings resume form
+$newResumeFile.addEventListener("change", () => {
+    const f = $newResumeFile.files[0];
+    $newResumeFileText.textContent = f ? f.name : "Choose PDF file…";
+});
+
+// Show filename for tailored resume in track tab
+$tailoredResumeFile.addEventListener("change", () => {
+    const f = $tailoredResumeFile.files[0];
+    $tailoredResumeFileText.textContent = f ? f.name : "Choose PDF (optional)…";
+});
+
+// Setup drag and drop for file uploads
+function setupDragAndDrop(labelElement, fileInputElement, textElement, defaultText) {
+    if (!labelElement) return;
+    
+    labelElement.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        labelElement.classList.add("drag-over");
+    });
+
+    labelElement.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        labelElement.classList.remove("drag-over");
+    });
+
+    labelElement.addEventListener("drop", (e) => {
+        e.preventDefault();
+        labelElement.classList.remove("drag-over");
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const f = e.dataTransfer.files[0];
+            if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
+                fileInputElement.files = e.dataTransfer.files;
+                textElement.textContent = f.name;
+                // Dispatch change event to handle any specific file uploading logics elsewhere
+                fileInputElement.dispatchEvent(new Event("change"));
+            } else {
+                showStatus("Please drop a valid PDF file.", "error");
+            }
+        }
+    });
+}
+
+setupDragAndDrop(
+    document.getElementById("newResumeFileLabel"),
+    $newResumeFile,
+    $newResumeFileText,
+    "Choose PDF file…"
+);
+
+setupDragAndDrop(
+    document.getElementById("tailoredResumeLabel"),
+    $tailoredResumeFile,
+    $tailoredResumeFileText,
+    "Choose PDF (optional)…"
+);
+
+// ═══════════════════════════════════════════════════════════
+//  RESUME LIBRARY — Stored as [{name, driveUrl}] in resumeLibrary
+// ═══════════════════════════════════════════════════════════
+
+async function getResumeLibrary() {
+    const { resumeLibrary = [] } = await chrome.storage.local.get("resumeLibrary");
+    return resumeLibrary;
+}
+
+async function saveResumeLibrary(library) {
+    await chrome.storage.local.set({ resumeLibrary: library });
+}
+
+async function populateResumeDropdown() {
+    const library = await getResumeLibrary();
     $resumeSelect.innerHTML = "";
-    allOptions.forEach((opt) => {
+
+    // ── "Tailored Resume" always first ──
+    const tailoredEl = document.createElement("option");
+    tailoredEl.value = "__tailored__";
+    tailoredEl.textContent = "📎 Tailored Resume (upload PDF)";
+    $resumeSelect.appendChild(tailoredEl);
+
+    // ── General resumes from library ──
+    library.forEach((r) => {
         const el = document.createElement("option");
-        el.value = opt;
-        el.textContent = opt;
+        el.value = r.name;
+        el.textContent = r.name;
         $resumeSelect.appendChild(el);
     });
+
+    // ── "+ Add in Settings" at end ──
+    const addEl = document.createElement("option");
+    addEl.value = "__add_new__";
+    addEl.textContent = "+ Add Resume in Settings →";
+    $resumeSelect.appendChild(addEl);
+
+    // Restore file picker visibility on repopulate
+    updateTailoredVisibility();
+}
+
+function updateTailoredVisibility() {
+    const isTailored = $resumeSelect.value === "__tailored__";
+    const $label = document.getElementById("tailoredResumeLabel");
+    if ($label) $label.style.display = isTailored ? "flex" : "none";
 }
 
 $resumeSelect.addEventListener("change", () => {
-    const isAddNew = $resumeSelect.value === "+ Add New Resume";
-    $resumeCustom.style.display = isAddNew ? "block" : "none";
-    if (isAddNew) {
-        $resumeCustom.value = "";
-        $resumeCustom.focus();
+    if ($resumeSelect.value === "__add_new__") {
+        // Switch to Settings tab
+        $tabs.forEach((t) => t.classList.remove("active"));
+        document.querySelector('.tab[data-tab="settings"]').classList.add("active");
+        Object.values($tabContents).forEach((c) => c.classList.remove("active"));
+        $tabContents.settings.classList.add("active");
+        loadSettingsTab();
+        // Reset to tailored option
+        $resumeSelect.value = "__tailored__";
+    }
+    updateTailoredVisibility();
+});
+
+// ═══════════════════════════════════════════════════════════
+//  SETTINGS TAB
+// ═══════════════════════════════════════════════════════════
+
+async function loadSettingsTab() {
+    // Load connection settings
+    const { webAppUrl = "", sheetUrl = "", dailyGoal = 5 } = await chrome.storage.local.get(["webAppUrl", "sheetUrl", "dailyGoal"]);
+    $settingsWebAppUrl.value = webAppUrl;
+    $settingsSheetUrl.value = sheetUrl;
+    $settingsDailyGoal.value = dailyGoal;
+
+    // Render resume library
+    await renderResumeLibrary();
+}
+
+async function renderResumeLibrary() {
+    const library = await getResumeLibrary();
+    $resumeLibraryList.innerHTML = "";
+
+    if (library.length === 0) {
+        $resumeLibraryEmpty.style.display = "flex";
+        return;
+    }
+    $resumeLibraryEmpty.style.display = "none";
+
+    // Setup drag and drop state for reordering
+    let draggedItemIdx = null;
+
+    library.forEach((resume, idx) => {
+        const item = document.createElement("div");
+        item.className = "resume-library-item";
+        item.draggable = true; // Make item draggable
+        item.dataset.idx = idx; // Store original index on element
+        
+        item.innerHTML = `
+            <div class="resume-library-drag-handle" title="Drag to reorder" style="cursor: grab; margin-right: 8px; color: var(--text-muted); display: flex; align-items: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </div>
+            <div class="resume-library-info">
+                <div class="resume-library-name">${escapeHtml(resume.name)}</div>
+                ${resume.driveUrl
+                    ? `<a class="resume-library-link" href="${escapeHtml(resume.driveUrl)}" target="_blank">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        Open in Drive
+                       </a>`
+                    : `<span class="resume-library-no-link">Not uploaded yet</span>`}
+            </div>
+            <div class="resume-library-actions">
+                <button class="resume-delete-btn" data-idx="${idx}" title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </button>
+            </div>
+        `;
+        
+        // Drag events for reordering
+        item.addEventListener("dragstart", (e) => {
+            draggedItemIdx = parseInt(item.dataset.idx);
+            item.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", draggedItemIdx); // needed for Firefox
+        });
+
+        item.addEventListener("dragend", () => {
+            item.classList.remove("dragging");
+            draggedItemIdx = null;
+        });
+
+        item.addEventListener("dragover", (e) => {
+            e.preventDefault(); // Necessary to allow dropping
+            e.dataTransfer.dropEffect = "move";
+            const bounding = item.getBoundingClientRect();
+            const offset = bounding.y + (bounding.height / 2);
+            if (e.clientY - offset > 0) {
+                item.style.borderBottom = "2px solid var(--primary)";
+                item.style.borderTop = "";
+            } else {
+                item.style.borderTop = "2px solid var(--primary)";
+                item.style.borderBottom = "";
+            }
+        });
+
+        item.addEventListener("dragleave", () => {
+            item.style.borderTop = "";
+            item.style.borderBottom = "";
+        });
+
+        item.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            item.style.borderTop = "";
+            item.style.borderBottom = "";
+            
+            if (draggedItemIdx === null) return;
+            const targetIdx = parseInt(item.dataset.idx);
+            
+            if (draggedItemIdx !== targetIdx) {
+                const lib = await getResumeLibrary();
+                
+                // Adjust target index if dropping below the midpoint
+                const bounding = item.getBoundingClientRect();
+                const offset = bounding.y + (bounding.height / 2);
+                let dropTargetIdx = targetIdx;
+                if (e.clientY - offset > 0) {
+                    dropTargetIdx++;
+                }
+
+                if (draggedItemIdx < dropTargetIdx) {
+                    dropTargetIdx--;
+                }
+                
+                // Move item in array
+                const [movedItem] = lib.splice(draggedItemIdx, 1);
+                lib.splice(dropTargetIdx, 0, movedItem);
+                
+                await saveResumeLibrary(lib);
+                await renderResumeLibrary();
+                await populateResumeDropdown();
+            }
+        });
+
+        $resumeLibraryList.appendChild(item);
+    });
+
+    // Delete button handlers
+    $resumeLibraryList.querySelectorAll(".resume-delete-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const idx = parseInt(btn.dataset.idx);
+            const lib = await getResumeLibrary();
+            lib.splice(idx, 1);
+            await saveResumeLibrary(lib);
+            await renderResumeLibrary();
+            await populateResumeDropdown();
+        });
+    });
+}
+
+/** Upload a general resume PDF to Drive via Apps Script, store driveUrl in library */
+async function uploadGeneralResume(name, file) {
+    const stored = await chrome.storage.local.get("webAppUrl");
+    let webAppUrl = stored.webAppUrl || "";
+    if (!webAppUrl && typeof CONFIG !== "undefined") webAppUrl = CONFIG.WEB_APP_URL;
+    if (!webAppUrl || webAppUrl === "YOUR_WEB_APP_URL_HERE") {
+        throw new Error("Web App URL not set. Go to Connection settings first.");
+    }
+
+    const base64 = await fileToBase64(file);
+    const payload = {
+        action: "uploadGeneralResume",
+        resumeName: name,
+        fileName: file.name,
+        fileData: base64,
+    };
+
+    // Can't read response with no-cors, so we use a separate upload endpoint approach:
+    // We send with mode:"cors" since Apps Script returns JSON
+    const resp = await fetch(webAppUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload),
+    });
+    const json = await resp.json();
+    if (json.status !== "success") throw new Error(json.message || "Upload failed");
+    return json.driveUrl; // returned by Apps Script
+}
+
+// Add resume button — uploads PDF and saves to library
+$addResumeBtn.addEventListener("click", async () => {
+    const name = $newResumeName.value.trim();
+    const file = $newResumeFile.files[0];
+    if (!name) { $newResumeName.focus(); return; }
+    if (!file) {
+        $addResumeStatus.textContent = "Please choose a PDF file.";
+        $addResumeStatus.className = "upload-status error";
+        return;
+    }
+
+    $addResumeBtn.disabled = true;
+    $addResumeStatus.textContent = "Uploading to Drive…";
+    $addResumeStatus.className = "upload-status uploading";
+
+    try {
+        const driveUrl = await uploadGeneralResume(name, file);
+
+        const lib = await getResumeLibrary();
+        const existing = lib.findIndex((r) => r.name === name);
+        if (existing >= 0) {
+            lib[existing].driveUrl = driveUrl; // update existing
+        } else {
+            lib.push({ name, driveUrl });
+        }
+        await saveResumeLibrary(lib);
+
+        $newResumeName.value = "";
+        $newResumeFile.value = "";
+        $newResumeFileText.textContent = "Choose PDF file…";
+        $addResumeStatus.textContent = "✅ Uploaded & saved!";
+        $addResumeStatus.className = "upload-status success";
+        setTimeout(() => { $addResumeStatus.textContent = ""; $addResumeStatus.className = "upload-status"; }, 3000);
+
+        await renderResumeLibrary();
+        await populateResumeDropdown();
+    } catch (err) {
+        $addResumeStatus.textContent = "❌ " + err.message;
+        $addResumeStatus.className = "upload-status error";
+    } finally {
+        $addResumeBtn.disabled = false;
     }
 });
 
-/** Save a custom resume name to storage so it appears in dropdown next time */
-async function saveCustomResume(name) {
-    if (!name || name === "+ Add New Resume") return;
-    const { customResumes = [] } = await chrome.storage.local.get("customResumes");
-    if (!customResumes.includes(name)) {
-        customResumes.push(name);
-        await chrome.storage.local.set({ customResumes });
-    }
-}
+// Save connection settings
+$saveConnectionBtn.addEventListener("click", async () => {
+    const webAppUrl = $settingsWebAppUrl.value.trim();
+    const sheetUrl = $settingsSheetUrl.value.trim();
+    const dailyGoal = parseInt($settingsDailyGoal.value) || 5;
+    await chrome.storage.local.set({ webAppUrl, sheetUrl, dailyGoal, setupComplete: true });
+    $settingsStatus.textContent = "✅ Settings saved!";
+    $settingsStatus.className = "status success visible";
+    setTimeout(() => $settingsStatus.classList.remove("visible"), 3000);
+});
 
 // ═══════════════════════════════════════════════════════════
 //  INIT — Check first-time, scrape data, check duplicates
@@ -309,26 +634,41 @@ $form.addEventListener("submit", async (e) => {
 
     const now = new Date();
 
-    // Determine resume value — if custom, save it for future use
-    let resumeValue;
-    if ($resumeSelect.value === "+ Add New Resume") {
-        resumeValue = $resumeCustom.value.trim() || "General Resume";
-        // Save this custom name so it appears in dropdown next time
-        await saveCustomResume(resumeValue);
-    } else {
-        resumeValue = $resumeSelect.value;
+    const selectedResume = $resumeSelect.value;
+    const isTailored = selectedResume === "__tailored__";
+
+    // General resume: name + drive URL from library
+    let resumeUsed = "";
+    let resumeDriveUrl = "";
+    if (!isTailored && selectedResume !== "__add_new__") {
+        resumeUsed = selectedResume;
+        const library = await getResumeLibrary();
+        const found = library.find((r) => r.name === selectedResume);
+        if (found) resumeDriveUrl = found.driveUrl || "";
+    }
+
+    // Tailored resume — read as base64 if selected and file picked
+    let tailoredBase64 = "";
+    let tailoredFileName = "";
+    if (isTailored) {
+        const tailoredFile = $tailoredResumeFile.files[0];
+        if (tailoredFile) {
+            tailoredBase64 = await fileToBase64(tailoredFile);
+            tailoredFileName = tailoredFile.name;
+        }
     }
 
     const payload = {
-        timestamp: formatDateTime(now),
         applicationDate: formatDateOnly(now),
         jobTitle: $jobTitle.value.trim(),
         companyName: $companyName.value.trim(),
         url: $pageUrl.value,
         location: $location.value.trim(),
         salary: $salary.value.trim(),
-        resumeUsed: resumeValue,
-        likelihood: $likelihood.value,
+        resumeUsed,
+        resumeDriveUrl,
+        tailoredFileData: tailoredBase64,
+        tailoredFileName: tailoredFileName,
         source: extractDomain($pageUrl.value),
         status: $appStatus.value,
         notes: $notes.value.trim(),
@@ -339,7 +679,6 @@ $form.addEventListener("submit", async (e) => {
             method: "POST",
             headers: { "Content-Type": "text/plain" },
             body: JSON.stringify(payload),
-            mode: "no-cors",
         });
 
         // Save to local history (for dashboard)
@@ -358,22 +697,49 @@ $form.addEventListener("submit", async (e) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-//  DASHBOARD
+//  DASHBOARD — fetches live stats from Google Sheet via doGet
 // ═══════════════════════════════════════════════════════════
+
+async function fetchSheetStats(webAppUrl) {
+    const resp = await fetch(webAppUrl + "?action=getStats", { method: "GET" });
+    const json = await resp.json();
+    if (json.status !== "ok") throw new Error(json.message || "Sheet error");
+    return json;
+}
 
 async function loadDashboard() {
     try {
-        const stats = await chrome.runtime.sendMessage({ action: "getStats" });
+        const { dailyGoal = 5 } = await chrome.storage.local.get("dailyGoal");
+        let stored = await chrome.storage.local.get("webAppUrl");
+        let webAppUrl = stored.webAppUrl || ((typeof CONFIG !== "undefined") ? CONFIG.WEB_APP_URL : "");
+
+        let stats = null;
+
+        // Try fetching live data from the sheet
+        if (webAppUrl && webAppUrl !== "YOUR_WEB_APP_URL_HERE") {
+            try {
+                stats = await fetchSheetStats(webAppUrl);
+            } catch (e) {
+                console.warn("Sheet stats fetch failed, falling back to local:", e);
+            }
+        }
+
+        // Fall back to local history if sheet fetch failed
+        if (!stats) {
+            stats = await chrome.runtime.sendMessage({ action: "getStats" });
+        }
         if (!stats) return;
+
+        // Merge daily goal from local storage (sheet doesn't store it)
+        stats.dailyGoal = stats.dailyGoal || dailyGoal;
 
         // ── Daily Goal Ring ──
         const pct = Math.min(stats.todayCount / stats.dailyGoal, 1);
-        const circumference = 2 * Math.PI * 42; // r=42
+        const circumference = 2 * Math.PI * 42;
         $goalRingFill.style.strokeDashoffset = circumference * (1 - pct);
         $goalCount.textContent = stats.todayCount;
         $goalTotal.textContent = stats.dailyGoal;
 
-        // Motivational text
         if (stats.todayCount === 0) {
             $goalMotivate.textContent = "Ready to start? Open a job posting and track it!";
         } else if (stats.todayCount < stats.dailyGoal) {
@@ -388,17 +754,19 @@ async function loadDashboard() {
         $statWeek.textContent = stats.weekCount;
         $statFollowUp.textContent = stats.needFollowUp;
 
-        // ── Likelihood Bars ──
-        const maxLik = Math.max(stats.likelihoods.High, stats.likelihoods.Medium, stats.likelihoods.Low, 1);
-        $barHigh.style.width = `${(stats.likelihoods.High / maxLik) * 100}%`;
-        $barMedium.style.width = `${(stats.likelihoods.Medium / maxLik) * 100}%`;
-        $barLow.style.width = `${(stats.likelihoods.Low / maxLik) * 100}%`;
-        $countHigh.textContent = stats.likelihoods.High;
-        $countMedium.textContent = stats.likelihoods.Medium;
-        $countLow.textContent = stats.likelihoods.Low;
+        // ── Status Breakdown bars (replaces likelihood since we removed it) ──
+        const statusBreakdown = stats.statusBreakdown || {};
+        const maxLik = Math.max(...Object.values(statusBreakdown), 1);
+        $barHigh.style.width = `${((statusBreakdown["Applied"] || 0) / maxLik) * 100}%`;
+        $barMedium.style.width = `${((statusBreakdown["Screening Call"] || 0) + (statusBreakdown["OA"] || 0)) / maxLik * 100}%`;
+        $barLow.style.width = `${((statusBreakdown["Rejected"] || 0) / maxLik) * 100}%`;
+        $countHigh.textContent = statusBreakdown["Applied"] || 0;
+        $countMedium.textContent = (statusBreakdown["Screening Call"] || 0) + (statusBreakdown["OA"] || 0);
+        $countLow.textContent = statusBreakdown["Rejected"] || 0;
 
         // ── Source Chips ──
-        const entries = Object.entries(stats.sources).sort((a, b) => b[1] - a[1]).slice(0, 6);
+        const sources = stats.sources || {};
+        const entries = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 6);
         if (entries.length) {
             $sourceChips.innerHTML = entries
                 .map(([s, c]) => `<span class="source-chip">${s} <span class="source-count">${c}</span></span>`)
@@ -412,12 +780,15 @@ async function loadDashboard() {
             $recentList.innerHTML = stats.recentApps
                 .map((app) => `
           <div class="recent-item">
-            <div class="recent-dot ${app.likelihood}"></div>
+            <div class="recent-dot status-${escapeHtml((app.status || "Applied").replace(/\s+/g,""))}"></div>
             <div class="recent-info">
               <div class="recent-title">${escapeHtml(app.jobTitle || "Untitled")}</div>
-              <div class="recent-company">${escapeHtml(app.companyName || "—")} · ${app.source || ""}</div>
+              <div class="recent-company">${escapeHtml(app.companyName || "—")}</div>
             </div>
-            <div class="recent-date">${timeAgo(app.savedAt)}</div>
+            <div class="recent-meta">
+              <span class="recent-status-badge status-${escapeHtml((app.status || "Applied").replace(/\s+/g,""))}">${escapeHtml(app.status || "Applied")}</span>
+              <span class="recent-date">${app.applicationDate || ""}</span>
+            </div>
           </div>
         `).join("");
         } else {

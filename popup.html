@@ -9,8 +9,11 @@
 </head>
 
 <body>
-  <div class="container">
-    <!-- ─── Header ─── -->
+  <!-- Added an app-wrapper to handle true border-radius in Chrome's constrained popup dimensions -->
+  <div class="app-wrapper">
+    <div class="container">
+    <!-- ─── Sticky: Header + Tab Bar ─── -->
+    <div class="popup-sticky">
     <header class="header">
       <div class="header-left">
         <div class="header-icon">
@@ -80,7 +83,18 @@
         </svg>
         Dashboard
       </button>
-    </div>
+      <button class="tab" data-tab="settings">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        Settings
+      </button>
+    </div><!-- end tab-bar -->
+    </div><!-- end popup-sticky -->
+
+    <!-- ─── Scrollable content ─── -->
+    <div class="popup-scroll">
 
     <!-- ═══════════ TRACK TAB ═══════════ -->
     <div class="tab-content active" id="tabTrack">
@@ -131,7 +145,7 @@
             </svg>
             Location
           </label>
-          <input type="text" id="location" placeholder="e.g. Remote, Hybrid, San Francisco" />
+          <input type="text" id="location" placeholder="e.g. Remote, Hybrid, Houston TX" />
         </div>
 
         <!-- Salary -->
@@ -144,6 +158,33 @@
             Salary / Comp
           </label>
           <input type="text" id="salary" placeholder="e.g. $100k - $120k" />
+        </div>
+
+        <!-- Resume (combined: Tailored + General + Add) -->
+        <div class="field">
+          <label for="resumeSelect">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            Resume
+          </label>
+          <select id="resumeSelect">
+            <!-- filled by populateResumeDropdown() -->
+          </select>
+          <!-- File picker shown when "Tailored Resume" is selected -->
+          <label class="file-upload-label" id="tailoredResumeLabel" style="display:none; margin-top:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span id="tailoredResumeFileText">Choose PDF…</span>
+            <input type="file" id="tailoredResumeFile" accept=".pdf" style="display:none;" />
+          </label>
         </div>
 
         <!-- URL (read-only) -->
@@ -172,40 +213,6 @@
           <input type="text" id="dateTime" readonly tabindex="-1" />
         </div>
 
-        <!-- Resume Used -->
-        <div class="field">
-          <label for="resumeUsed">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
-            Resume Used
-          </label>
-          <select id="resumeSelect">
-            <!-- filled from config or storage -->
-          </select>
-          <input type="text" id="resumeCustom" placeholder="Type your custom resume name…"
-            style="display:none; margin-top:6px;" />
-        </div>
-
-        <!-- Confidence Level (was Likelihood) -->
-        <div class="field">
-          <label for="likelihood">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-            </svg>
-            Confidence <span class="label-hint">(will I hear back?)</span>
-          </label>
-          <select id="likelihood" required>
-            <option value="High">🟢 High — Great fit, strong match</option>
-            <option value="Medium" selected>🟡 Medium — Worth a shot</option>
-            <option value="Low">🔴 Low — Long shot / stretch role</option>
-          </select>
-        </div>
-
         <!-- Application Status -->
         <div class="field">
           <label for="appStatus">
@@ -217,11 +224,12 @@
           </label>
           <select id="appStatus">
             <option value="Applied" selected>📤 Applied</option>
-            <option value="Phone Screen">📞 Phone Screen</option>
-            <option value="Interview">🎤 Interview</option>
-            <option value="Offer">🎉 Offer</option>
             <option value="Rejected">❌ Rejected</option>
-            <option value="Ghosted">👻 Ghosted</option>
+            <option value="OA">💻 OA</option>
+            <option value="Screening Call">📞 Screening Call</option>
+            <option value="1st Round">🎤 1st Round</option>
+            <option value="2nd Round">🎤 2nd Round</option>
+            <option value="3rd Round">🎤 3rd Round</option>
           </select>
         </div>
 
@@ -296,26 +304,26 @@
         </div>
       </div>
 
-      <!-- Likelihood Breakdown -->
+      <!-- Status Breakdown -->
       <div class="breakdown-section">
-        <h4>Likelihood Breakdown</h4>
+        <h4>Status Breakdown</h4>
         <div class="breakdown-bars">
           <div class="breakdown-row">
-            <span class="breakdown-label">🟢 High</span>
+            <span class="breakdown-label">📤 Applied</span>
             <div class="breakdown-bar-track">
               <div class="breakdown-bar high" id="barHigh"></div>
             </div>
             <span class="breakdown-count" id="countHigh">0</span>
           </div>
           <div class="breakdown-row">
-            <span class="breakdown-label">🟡 Medium</span>
+            <span class="breakdown-label">🎤 Interviews</span>
             <div class="breakdown-bar-track">
               <div class="breakdown-bar medium" id="barMedium"></div>
             </div>
             <span class="breakdown-count" id="countMedium">0</span>
           </div>
           <div class="breakdown-row">
-            <span class="breakdown-label">🔴 Low</span>
+            <span class="breakdown-label">❌ Rejected</span>
             <div class="breakdown-bar-track">
               <div class="breakdown-bar low" id="barLow"></div>
             </div>
@@ -347,12 +355,123 @@
       </div>
     </div>
 
-    <!-- Creator Credit -->
+    <!-- ═══════════ SETTINGS TAB ═══════════ -->
+    <div class="tab-content" id="tabSettings">
+
+      <!-- General Resumes Library -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          <h3>Resume Library</h3>
+        </div>
+        <p class="settings-desc">Manage your general resumes. These appear in the dropdown when tracking jobs.</p>
+
+        <!-- Add new resume -->
+        <div class="resume-add-form">
+          <input type="text" id="newResumeName" placeholder="Resume name (e.g. Data Analyst Resume)" />
+          <label class="file-upload-label" id="newResumeFileLabel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span id="newResumeFileText">Choose PDF file…</span>
+            <input type="file" id="newResumeFile" accept=".pdf" style="display:none;" />
+          </label>
+          <button type="button" id="addResumeBtn" class="add-resume-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Upload &amp; Save
+          </button>
+          <div id="addResumeStatus" class="upload-status"></div>
+        </div>
+
+        <!-- Resume list -->
+        <div class="resume-library" id="resumeLibrary">
+          <div class="resume-library-empty" id="resumeLibraryEmpty">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <p>No resumes added yet.<br/>Add one above to get started!</p>
+          </div>
+          <div id="resumeLibraryList"></div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="settings-divider"></div>
+
+      <!-- Connection Settings -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          <h3>Connection</h3>
+        </div>
+        <div class="settings-field">
+          <label>Web App URL</label>
+          <div class="settings-url-row">
+            <input type="url" id="settingsWebAppUrl" placeholder="https://script.google.com/macros/s/…" />
+            <button type="button" id="saveConnectionBtn" class="save-connection-btn">Save</button>
+          </div>
+        </div>
+        <div class="settings-field">
+          <label>Google Sheet URL <span class="label-hint">(optional)</span></label>
+          <input type="url" id="settingsSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…" />
+        </div>
+        <div class="settings-field">
+          <label>Daily Goal</label>
+          <div class="goal-input-row">
+            <input type="number" id="settingsDailyGoal" min="1" max="50" value="5" style="width:70px;" />
+            <span style="font-size:12px; color:var(--text-muted);">apps / day</span>
+          </div>
+        </div>
+        <div id="settingsStatus" class="status" style="margin-top:8px;"></div>
+      </div>
+
+      <!-- Divider -->
+      <div class="settings-divider"></div>
+
+      <!-- Developers -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <h3>Developers</h3>
+        </div>
+        <div class="dev-list">
+          <div class="dev-item">
+            <span class="dev-name">Nisarg Shah</span>
+            <span class="dev-role">Contributor</span>
+            <a class="dev-link" href="https://github.com/nisarg-007" target="_blank">@nisarg-007</a>
+          </div>
+          <div class="dev-item">
+            <span class="dev-name">Somil Doshi</span>
+            <span class="dev-role">Contributor</span>
+            <a class="dev-link" href="https://github.com/somildoshi12" target="_blank">@somildoshi12</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end tabSettings -->
+    </div><!-- end popup-scroll -->
+
+    <!-- Footer -->
     <footer class="creator-footer">
-      <span class="creator-tag">crafted by <strong>Nisarg Shah</strong> <span class="vibe-badge">Vibe
-          Coder</span></span>
+      <span class="creator-tag"><strong>Job Tracker</strong> <span class="vibe-badge">Extension</span></span>
     </footer>
-  </div>
+    </div><!-- end container -->
+  </div><!-- end app-wrapper -->
 
   <!-- Scripts -->
   <script src="config.js"></script>
