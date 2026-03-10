@@ -197,7 +197,11 @@ This extension tracks job applications by saving job details from the current pa
 > Paste into the host permissions justification text box.
 
 ```
-The content script uses <all_urls> because job postings exist on any domain. The script only activates when the user clicks the extension icon and only reads job title and company name text from the page. No data is collected passively or in the background.
+This extension tracks job applications from any website, since job postings exist across thousands of different employer domains (e.g., company career pages, ATS platforms, job boards). It is not possible to enumerate all valid job posting URLs in advance.
+
+The content script is lightweight and only reads job title and company name text from the DOM when the user explicitly opens the extension popup. No data is collected passively, in the background, or without the user's direct action. No browsing history, cookies, or personal data is accessed or transmitted. All scraped data goes directly from the user's browser to their own private Google Sheet, with no intermediary servers.
+
+The broad host permission is functionally equivalent to activeTab in practice — the script only activates on user interaction — but requires the content_scripts manifest entry for the sendMessage communication pattern used between the popup and content script in Manifest V3.
 ```
 
 ---
