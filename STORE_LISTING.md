@@ -30,7 +30,8 @@ Job Application Tracker saves every job application to YOUR Google Sheet with a 
 🎯 ONE-CLICK TRACKING
 • Open any job posting → click the extension → hit Save
 • Auto-detects job title and company name from the page
-• Works on LinkedIn, Indeed, Greenhouse, Lever, Workday, Glassdoor, and any other job site
+• Works on all major job boards and hiring platforms out of the box
+• Falls back gracefully on any other website using the page title
 
 📊 APPLICATION DASHBOARD
 • See your total applications, weekly count, and follow-up needs at a glance
@@ -99,16 +100,9 @@ Each application saves these columns to your Google Sheet:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🌐 SUPPORTED JOB SITES
+🌐 WORKS EVERYWHERE
 
-Works on ANY website, with smart auto-detection for:
-✅ LinkedIn
-✅ Indeed
-✅ Greenhouse
-✅ Lever
-✅ Workday
-✅ Glassdoor
-✅ And hundreds more (falls back to page title)
+Job Application Tracker works on any job posting page across the web. It includes smart auto-detection built for the most popular hiring platforms, and gracefully falls back to reading the page title and metadata for any other site — no configuration needed.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -149,7 +143,7 @@ English
 
 ## Tags / Keywords
 ```
-job tracker, job application tracker, job search, career, resume, google sheets, job board, linkedin, indeed, greenhouse, lever, workday, productivity, free
+job tracker, job application tracker, job search, career, resume, google sheets, productivity, free, job board, application organizer
 ```
 
 ---
