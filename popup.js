@@ -288,6 +288,12 @@ async function populateResumeDropdown() {
     addEl.textContent = "+ Add Resume in Settings →";
     $resumeSelect.appendChild(addEl);
 
+    if (library.length > 0) {
+        $resumeSelect.value = library[0].name;
+    } else {
+        $resumeSelect.value = "__tailored__";
+    }
+
     // Restore file picker visibility on repopulate
     updateTailoredVisibility();
 }
