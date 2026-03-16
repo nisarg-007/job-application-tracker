@@ -260,7 +260,7 @@ const $copyHeadersBtn = document.getElementById("copyHeadersBtn");
 if ($copyHeadersBtn) {
   $copyHeadersBtn.addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText("Date Applied\tCompany\tRole\tJD\tLocation\tSalary\tResume\tTailored Resume\tStatus\tNotes");
+      await navigator.clipboard.writeText("Date Applied\tCompany\tRole\tJD\tLocation\tSalary\tResume\tStatus\tNotes");
       const originalInner = $copyHeadersBtn.innerHTML;
       $copyHeadersBtn.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
