@@ -3,7 +3,6 @@
    Created by Nisarg Shah and Somil Doshi [Vibe Coder]
    - Opens welcome/onboarding page on first install
    - Injects content script on demand
-   - Manages follow-up reminder badge
    - Tracks application history in chrome.storage
    ========================================================= */
 
@@ -14,6 +13,22 @@ chrome.runtime.onInstalled.addListener((details) => {
     if (details.reason === "install") {
         // First install — open the welcome wizard
         chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+    }
+});
+
+// ─── On Action Click: inject iframe ───────────────────────
+chrome.action.onClicked.addListener((tab) => {
+    if (tab.url && (tab.url.startsWith("http://") || tab.url.startsWith("https://"))) {
+        chrome.scripting.executeScript(
+            { target: { tabId: tab.id }, files: ["content_script.js"] },
+            () => {
+                if (chrome.runtime.lastError) {
+                    console.warn("Could not inject:", chrome.runtime.lastError.message);
+                } else {
+                    chrome.tabs.sendMessage(tab.id, { action: "toggleJobTracker" });
+                }
+            }
+        );
     }
 });
 
@@ -85,9 +100,6 @@ async function saveApplicationToHistory(appData) {
     if (history.length > 200) history.length = 200;
 
     await chrome.storage.local.set({ history });
-
-    // Update badge for follow-up reminders
-    await updateFollowUpBadge();
 }
 
 async function getHistory() {
@@ -159,31 +171,3 @@ async function getStats() {
         recentApps: history.slice(0, 5),
     };
 }
-
-// ─── Follow-Up Badge ─────────────────────────────────────
-
-async function updateFollowUpBadge() {
-    const { history = [] } = await chrome.storage.local.get("history");
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const count = history.filter(
-        (a) => !a.followedUp && new Date(a.savedAt) < sevenDaysAgo
-    ).length;
-
-    if (count > 0) {
-        chrome.action.setBadgeText({ text: String(count) });
-        chrome.action.setBadgeBackgroundColor({ color: "#f87171" });
-    } else {
-        chrome.action.setBadgeText({ text: "" });
-    }
-}
-
-// ─── Periodic badge update (every 6 hours) ────────────────
-chrome.alarms.create("followUpCheck", { periodInMinutes: 360 });
-chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === "followUpCheck") {
-        updateFollowUpBadge();
-    }
-});
-
-// Initial badge check on service worker start
-updateFollowUpBadge();

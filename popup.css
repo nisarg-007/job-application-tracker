@@ -207,8 +207,8 @@ body {
 }
 
 .icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   background: var(--bg-card);
@@ -230,7 +230,7 @@ body {
 
 .header-actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 /* ─── Tab Bar ─── */

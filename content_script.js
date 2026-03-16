@@ -501,7 +501,62 @@
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         if (message.action === "scrapeJobData") {
             sendResponse(scrapeJobData());
+        } else if (message.action === "toggleJobTracker") {
+            toggleTrackerIframe();
+            sendResponse({ status: "toggled" });
         }
         return true; // keep channel open for async
+    });
+
+    // ───────── Iframe Injection Logic ─────────
+    const IFRAME_ID = "job-tracker-extension-iframe";
+
+    function toggleTrackerIframe() {
+        let iframe = document.getElementById(IFRAME_ID);
+        
+        if (iframe) {
+            // Toggle visibility if it exists
+            if (iframe.style.display === "none") {
+                iframe.style.display = "block";
+            } else {
+                iframe.style.display = "none";
+            }
+        } else {
+            // Create and inject iframe
+            iframe = document.createElement("iframe");
+            iframe.id = IFRAME_ID;
+            iframe.src = chrome.runtime.getURL("popup.html");
+            
+            // Styling to make it look like a floating popup
+            Object.assign(iframe.style, {
+                position: "fixed",
+                top: "16px",
+                right: "16px",
+                width: "420px",
+                height: "640px",
+                border: "none",
+                borderRadius: "16px",
+                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.25)",
+                zIndex: "2147483647", // Max z-index
+                backgroundColor: "transparent",
+                colorScheme: "normal",
+                display: "block"
+            });
+            
+            document.body.appendChild(iframe);
+        }
+    }
+
+    // Listen for close message from the iframe
+    window.addEventListener("message", (event) => {
+        // Security: verify origin is our extension
+        if (event.origin !== `chrome-extension://${chrome.runtime.id}`) return;
+        
+        if (event.data && event.data.action === "closeJobTracker") {
+            const iframe = document.getElementById(IFRAME_ID);
+            if (iframe) {
+                iframe.style.display = "none";
+            }
+        }
     });
 })();

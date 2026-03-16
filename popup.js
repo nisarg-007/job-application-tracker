@@ -52,6 +52,8 @@ const $tabContents = {
     settings: document.getElementById("tabSettings")
 };
 const $settingsBtn = document.getElementById("settingsBtn");
+const $closeTrackerBtn = document.getElementById("closeTrackerBtn");
+const $refreshBtn = document.getElementById("refreshBtn");
 
 // ─── DOM refs: Settings tab ───────────────────────────────
 const $newResumeName = document.getElementById("newResumeName");
@@ -144,6 +146,53 @@ $tabs.forEach((tab) => {
 $settingsBtn.addEventListener("click", () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
 });
+
+// Refresh button
+if ($refreshBtn) {
+    $refreshBtn.addEventListener("click", async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) return;
+
+        // Add a quick spinning animation to the icon
+        const svg = $refreshBtn.querySelector("svg");
+        if (svg) svg.style.animation = "spin 1s linear infinite";
+
+        $pageUrl.value = tab.url || "";
+        checkDuplicate(tab.url);
+
+        try {
+            // Always try to re-inject just in case the page navigation cleared our content script
+            await chrome.runtime.sendMessage({ action: "ensureContentScript", tabId: tab.id });
+            await new Promise((r) => setTimeout(r, 250));
+            const data = await messageScraper(tab.id);
+            applyScrapedData(data, tab.title);
+            
+            // Manually set a success status directly if desired
+            const prevStatus = $status.textContent;
+            const prevClass = $status.className;
+            $status.textContent = "Data Refreshed!";
+            $status.className = "status success visible";
+            setTimeout(() => {
+                $status.classList.remove("visible");
+                setTimeout(() => {
+                    $status.textContent = prevStatus;
+                    $status.className = prevClass;
+                }, 250);
+            }, 2000);
+        } catch {
+            $jobTitle.value = tab.title || "";
+        } finally {
+            if (svg) svg.style.animation = "";
+        }
+    });
+}
+
+// Close button → sends postMessage to parent window to hide iframe
+if ($closeTrackerBtn) {
+    $closeTrackerBtn.addEventListener("click", () => {
+        window.parent.postMessage({ action: "closeJobTracker" }, "*");
+    });
+}
 
 // Theme Toggle
 const $themeToggleBtn = document.getElementById("themeToggleBtn");
@@ -691,6 +740,11 @@ $form.addEventListener("submit", async (e) => {
         await chrome.runtime.sendMessage({ action: "saveApplication", data: payload });
 
         showStatus("✅  Saved to Google Sheet!", "success");
+        
+        // Close the iframe tracker upon successful save
+        setTimeout(() => {
+            window.parent.postMessage({ action: "closeJobTracker" }, "*");
+        }, 1500); // Give user time to see success message
 
         // Refresh dashboard stats silently
         loadDashboard();
