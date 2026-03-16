@@ -35,6 +35,7 @@ const RESUMES_SHEET_NAME = "Resumes";
 // ⚠️ Set this to your Drive folder ID (from the folder URL)
 // Leave as-is to save files to root Drive
 const DRIVE_FOLDER_ID = "YOUR_DRIVE_FOLDER_ID_HERE";
+const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
 
 const HEADER_BG = "#1a237e"; const HEADER_TEXT = "#ffffff"; const ACCENT_BORDER = "#3949ab";
 const ROW_ODD = "#f8f9ff"; const ROW_EVEN = "#ffffff";
@@ -45,14 +46,14 @@ const STATUS_VALUES = ["Applied","Rejected","OA","Screening Call","1st Round","2
 // ⚠️ RUN authorizePermissions() ONCE before deploying to grant Drive access!
 function authorizePermissions() {
   DriveApp.getRootFolder();
-  SpreadsheetApp.getActiveSpreadsheet();
+  (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
   Logger.log("Permissions authorized! You can now deploy.");
 }
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
     if (data.action === "uploadGeneralResume") return handleGeneralResumeUpload(data, ss);
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) { sheet = ss.insertSheet(SHEET_NAME); setupApplicationsSheet(sheet); }
@@ -195,7 +196,7 @@ function doGet(e) {
 
 function getSheetStats() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
     const sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet || sheet.getLastRow() < 2) return _jsonResponse({ status:"ok", totalApps:0, todayCount:0, weekCount:0, needFollowUp:0, statusBreakdown:{}, sources:{}, recentApps:[] });
     const lastRow = sheet.getLastRow();
@@ -227,13 +228,30 @@ function getSheetStats() {
 
 function _jsonResponse(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }`;
 
-// ─── Populate script code block ───────────────────────────
-$scriptCode.textContent = APPS_SCRIPT_CODE;
+// ─── Populate script code block dynamically ───────────────────────────
+const $inputSheetId = document.getElementById("inputSheetId");
+const $inputDriveId = document.getElementById("inputDriveId");
+
+function updateScriptCode() {
+  const sheetId = $inputSheetId ? $inputSheetId.value.trim() : "";
+  const driveId = $inputDriveId ? $inputDriveId.value.trim() : "";
+
+  let modifiedCode = APPS_SCRIPT_CODE;
+  if (sheetId) modifiedCode = modifiedCode.replaceAll("YOUR_SPREADSHEET_ID_HERE", sheetId);
+  if (driveId) modifiedCode = modifiedCode.replaceAll("YOUR_DRIVE_FOLDER_ID_HERE", driveId);
+
+  $scriptCode.textContent = modifiedCode;
+}
+
+if ($inputSheetId) $inputSheetId.addEventListener("input", updateScriptCode);
+if ($inputDriveId) $inputDriveId.addEventListener("input", updateScriptCode);
+updateScriptCode();
 
 // ─── Copy script to clipboard ─────────────────────────────
 $copyBtn.addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(APPS_SCRIPT_CODE);
+    const codeToCopy = $scriptCode.textContent;
+    await navigator.clipboard.writeText(codeToCopy);
     $copyBtn.innerHTML = `
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
       Copied!

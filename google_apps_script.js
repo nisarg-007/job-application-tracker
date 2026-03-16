@@ -37,6 +37,7 @@ const SHEET_NAME         = "Applications";
 const RESUMES_SHEET_NAME = "Resumes";
 
 const DRIVE_FOLDER_ID = "YOUR_DRIVE_FOLDER_ID_HERE";
+const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
 
 // ──── THEME COLORS ────
 const HEADER_BG       = "#1a237e";
@@ -65,7 +66,7 @@ const NUM_COLS = 9; // A through I
  */
 function authorizePermissions() {
     DriveApp.getRootFolder();
-    SpreadsheetApp.getActiveSpreadsheet();
+    (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
     Logger.log("Permissions authorized! You can now deploy.");
 }
 
@@ -77,7 +78,7 @@ function authorizePermissions() {
 function doPost(e) {
     try {
         const data = JSON.parse(e.postData.contents);
-        const ss   = SpreadsheetApp.getActiveSpreadsheet();
+        const ss   = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
 
         if (data.action === "uploadGeneralResume") {
             return handleGeneralResumeUpload(data, ss);
@@ -112,7 +113,7 @@ function doGet(e) {
 
 function getSheetStats() {
     try {
-        const ss    = SpreadsheetApp.getActiveSpreadsheet();
+        const ss    = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
         const sheet = ss.getSheetByName(SHEET_NAME);
         if (!sheet || sheet.getLastRow() < 2) {
             return _jsonResponse({
@@ -197,7 +198,7 @@ function getSheetStats() {
 function saveApplication(sheet, data) {
     const company = data.companyName || "";
     const role    = data.jobTitle    || "";
-    const ss      = SpreadsheetApp.getActiveSpreadsheet();
+    const ss      = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
     const status  = data.status || "Applied";
 
     // ── Upload tailored resume PDF if provided ──
@@ -356,7 +357,7 @@ function setupApplicationsSheet(sheet) {
  * rewrites the sheet, and applies Status dropdowns.
  */
 function fixExistingSheet() {
-    const ss    = SpreadsheetApp.getActiveSpreadsheet();
+    const ss    = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
     const sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) { Logger.log("Sheet not found."); return; }
 
