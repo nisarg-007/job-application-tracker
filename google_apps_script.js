@@ -1,7 +1,7 @@
 /**
  * ======================================================================
  *  Google Apps Script — Job Application Tracker Web App
- *  Created by Nisarg Shah [Vibe Coder]
+ *  Created by Nisarg Shah and Somil Doshi [Vibe Coder]
  * ======================================================================
  *
  *  SHEET COLUMNS — Applications (A → I):

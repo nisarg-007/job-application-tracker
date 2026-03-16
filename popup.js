@@ -1,6 +1,6 @@
 /* =========================================================
    popup.js — Full popup logic
-   Created by Nisarg Shah [Vibe Coder]
+   Created by Nisarg Shah and Somil Doshi [Vibe Coder]
    • Tabbed UI (Track / Dashboard)
    • Scraping via content script
    • Duplicate URL detection

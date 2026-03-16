@@ -2,7 +2,7 @@
    content_script.js — Scrapes job title & company name from
    the active page DOM. Runs on every page, responds to
    messages from the popup.
-   Created by Nisarg Shah [Vibe Coder]
+   Created by Nisarg Shah and Somil Doshi [Vibe Coder]
    ========================================================= */
 
 (() => {

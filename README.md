@@ -309,7 +309,7 @@ Free to use, modify, and distribute. If you find it useful, star ⭐ this repo!
 
 ## 👨‍💻 Authors
 
-**Nisarg Shah** — *Original Creator · Vibe Coder*
+**Nisarg Shah and Somil Doshi** — *Original Creator · Vibe Coder*
 
 - GitHub: [@nisarg-007](https://github.com/nisarg-007)
 

@@ -133,7 +133,7 @@ Unlike paid tools like Huntr, Teal, or JobScan:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Created by Nisarg Shah [Vibe Coder]
+Created by Nisarg Shah and Somil Doshi [Vibe Coder]
 Open source on GitHub — contributions welcome!
 ```
 

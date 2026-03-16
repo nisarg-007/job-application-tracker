@@ -2,7 +2,7 @@
    welcome.js — Onboarding wizard logic
    Handles step navigation, URL validation, script copy,
    and saves config to chrome.storage.local
-   Created by Nisarg Shah [Vibe Coder]
+   Created by Nisarg Shah and Somil Doshi [Vibe Coder]
    ========================================================= */
 
 "use strict";
@@ -26,7 +26,7 @@ const $dailyGoal = document.getElementById("dailyGoal");
 // ─── Apps Script code (embedded so users can copy it) ─────
 
 const APPS_SCRIPT_CODE = `// ── Google Apps Script — Job Application Tracker ──
-// Created by Nisarg Shah [Vibe Coder]
+// Created by Nisarg Shah and Somil Doshi [Vibe Coder]
 // Paste this into Extensions → Apps Script → Code.gs
 
 const SHEET_NAME = "Applications";

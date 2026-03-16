@@ -1,6 +1,6 @@
 /* =========================================================
    background.js — MV3 Service Worker
-   Created by Nisarg Shah [Vibe Coder]
+   Created by Nisarg Shah and Somil Doshi [Vibe Coder]
    - Opens welcome/onboarding page on first install
    - Injects content script on demand
    - Manages follow-up reminder badge
