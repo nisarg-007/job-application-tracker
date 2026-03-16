@@ -80,12 +80,13 @@ function saveApplication(sheet, data, ss) {
     "", // D JD link
     data.location || "", data.salary || "",
     "", // G Resume
-    "", // H Tailored
-    status, // I Status
-    data.notes || "", // J Notes
+    
+    status, // H Status
+    data.notes || "", // I Notes
   ];
-  sheet.appendRow(row);
-  const nr = sheet.getLastRow();
+  sheet.insertRowBefore(2);
+  sheet.getRange(2, 1, 1, row.length).setValues([row]);
+  const nr = 2; // The new row is always 2
   if (data.url) {
     sheet.getRange(nr,4).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("link").setLinkUrl(data.url).build());
   }
@@ -95,11 +96,11 @@ function saveApplication(sheet, data, ss) {
     } else { sheet.getRange(nr,7).setValue(data.resumeUsed); }
   }
   if (tailoredUrl) {
-    sheet.getRange(nr,8).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("Tailored").setLinkUrl(tailoredUrl).build());
+    sheet.getRange(nr,7).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("Tailored").setLinkUrl(tailoredUrl).build());
   }
   styleDataRow(sheet, nr, status);
   const rule = SpreadsheetApp.newDataValidation().requireValueInList(STATUS_VALUES, true).setAllowInvalid(false).build();
-  sheet.getRange(nr,9).setDataValidation(rule);
+  sheet.getRange(nr,8).setDataValidation(rule);
   return _jsonResponse({ status: "success", message: "Application saved!", row: nr });
 }
 
@@ -139,7 +140,7 @@ function setupApplicationsSheet(sheet) {
 
 function styleDataRow(sheet, rowNum, status) {
   const bg = rowNum%2===0 ? ROW_EVEN : ROW_ODD;
-  sheet.getRange(rowNum,1,1,10).setBackground(bg).setFontSize(10);
+  sheet.getRange(rowNum,1,1,9).setBackground(bg).setFontSize(10);
   sheet.setRowHeight(rowNum,24);
   let s = bg;
   if(status==="Applied") s=APPLIED_COLOR;
@@ -147,8 +148,8 @@ function styleDataRow(sheet, rowNum, status) {
   else if(status==="OA") s=OA_COLOR;
   else if(status==="Screening Call") s=SCREENING_COLOR;
   else if(status==="1st Round"||status==="2nd Round"||status==="3rd Round") s=ROUND_COLOR;
-  sheet.getRange(rowNum,9).setBackground(s).setHorizontalAlignment("center").setFontWeight("bold");
-  [1,4,7,8].forEach(c => sheet.getRange(rowNum,c).setHorizontalAlignment("center"));
+  sheet.getRange(rowNum,8).setBackground(s).setHorizontalAlignment("center").setFontWeight("bold");
+  [1,4,7].forEach(c => sheet.getRange(rowNum,c).setHorizontalAlignment("center"));
 }
 
 function ensureResumesSheet(ss) {
@@ -198,7 +199,7 @@ function getSheetStats() {
     const sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet || sheet.getLastRow() < 2) return _jsonResponse({ status:"ok", totalApps:0, todayCount:0, weekCount:0, needFollowUp:0, statusBreakdown:{}, sources:{}, recentApps:[] });
     const lastRow = sheet.getLastRow();
-    const data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+    const data = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
     const tz = Session.getScriptTimeZone();
     const todayStr = Utilities.formatDate(new Date(), tz, "dd-MMM-yy");
     const now = new Date();
@@ -207,7 +208,7 @@ function getSheetStats() {
     let todayCount=0, weekCount=0, needFollowUp=0;
     const statusBreakdown={}, sources={}, recentApps=[];
     data.forEach((row, idx) => {
-      const dateVal=row[0], company=String(row[1]||""), role=String(row[2]||""), status=String(row[8]||"Applied");
+      const dateVal=row[0], company=String(row[1]||""), role=String(row[2]||""), status=String(row[7]||"Applied");
       let appDate = dateVal instanceof Date ? dateVal : null;
       if (!appDate) { try { appDate = new Date(String(dateVal)); } catch(_){} }
       const appDateStr = appDate ? Utilities.formatDate(appDate, tz, "dd-MMM-yy") : "";
