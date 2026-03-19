@@ -218,16 +218,18 @@ $themeToggleBtn.addEventListener("click", () => {
 
 // Open Sheet button → open the connected Google Sheet
 const $openSheetBtn = document.getElementById("openSheetBtn");
-$openSheetBtn.addEventListener("click", async () => {
-    const { webAppUrl, sheetUrl } = await chrome.storage.local.get(["webAppUrl", "sheetUrl"]);
-    const url = webAppUrl || ((typeof CONFIG !== "undefined") ? CONFIG.WEB_APP_URL : "");
-    if (url && url.startsWith("https://script.google.com/")) {
-        // Open the user's specific sheet if they provided the URL, otherwise open the Sheets homepage
-        chrome.tabs.create({ url: sheetUrl ? sheetUrl : "https://docs.google.com/spreadsheets" });
-    } else {
-        showStatus("⚙ Set up your Google Sheet first (click the gear icon)", "error");
-    }
-});
+if ($openSheetBtn) {
+    $openSheetBtn.addEventListener("click", async () => {
+        const { webAppUrl, sheetUrl } = await chrome.storage.local.get(["webAppUrl", "sheetUrl"]);
+        const url = webAppUrl || ((typeof CONFIG !== "undefined") ? CONFIG.WEB_APP_URL : "");
+        if (url && url.startsWith("https://script.google.com/")) {
+            // Open the user's specific sheet if they provided the URL, otherwise open the Sheets homepage
+            chrome.tabs.create({ url: sheetUrl ? sheetUrl : "https://docs.google.com/spreadsheets" });
+        } else {
+            showStatus("⚙ Set up your Google Sheet first (click the gear icon)", "error");
+        }
+    });
+}
 
 // ═══════════════════════════════════════════════════════════
 //  FILE HELPERS
@@ -594,7 +596,8 @@ async function init() {
     // Check if setup is complete
     const { setupComplete, webAppUrl, theme } = await chrome.storage.local.get(["setupComplete", "webAppUrl", "theme"]);
 
-    if (theme) applyTheme(theme);
+    // Apply theme — default to 'dark' on first install
+    applyTheme(theme || "dark");
 
     if (!setupComplete && (!webAppUrl || webAppUrl === "YOUR_WEB_APP_URL_HERE")) {
         const configUrl = (typeof CONFIG !== "undefined") ? CONFIG.WEB_APP_URL : "";

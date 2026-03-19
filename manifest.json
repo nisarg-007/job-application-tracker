@@ -21,8 +21,7 @@
     "permissions": [
         "activeTab",
         "scripting",
-        "storage",
-        "alarms"
+        "storage"
     ],
     "background": {
         "service_worker": "background.js"
@@ -45,9 +44,6 @@
                 "popup.css",
                 "popup.js",
                 "config.js",
-                "welcome.html",
-                "welcome.css",
-                "welcome.js",
                 "icons/*"
             ],
             "matches": ["<all_urls>"]
