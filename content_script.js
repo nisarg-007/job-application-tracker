@@ -43,7 +43,8 @@
             ".job-view-layout h2",
             'a.topcard__title',
             "h1[class*='job-title']",
-            "h2[class*='job-title']"
+            "h2[class*='job-title']",
+            ".jobs-search__job-details--wrapper a[href*='/jobs/view/']" // Fallback for lazy layout
         ]);
         let companyName = firstText([
             ".job-details-jobs-unified-top-card__company-name a",
@@ -58,6 +59,7 @@
             ".jobs-unified-top-card__company-name",
             'a[data-tracking-control-name="public_jobs_topcard-org-name"]',
             ".job-view-layout .job-details-jobs-unified-top-card__primary-description a",
+            ".jobs-search__job-details--wrapper a[href*='/company/']" // Fallback for lazy layout
         ]);
 
         // Fallback to active card in the left list if right pane is still rendering
@@ -500,7 +502,34 @@
 
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         if (message.action === "scrapeJobData") {
-            sendResponse(scrapeJobData());
+            const data = scrapeJobData();
+
+            // LinkedIn is an SPA. If we're on a LinkedIn jobs page and the title is empty,
+            // we give it up to 3 seconds to render the DOM by polling every 500ms.
+            const isLinkedInJob = location.hostname.includes("linkedin.com") && location.pathname.includes("/jobs");
+            
+            // Note: Our scraper returns " " (a space) as a placeholder if it completely fails,
+            // to stop popup.js from using the generic tab title. We handle both "" and " " here.
+            const titleMissing = !data.jobTitle || data.jobTitle.trim() === "";
+            const companyMissing = !data.companyName || data.companyName.trim() === "";
+
+            if ((titleMissing || companyMissing) && isLinkedInJob) {
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    attempts++;
+                    const newData = scrapeJobData();
+                    const newTitleMissing = !newData.jobTitle || newData.jobTitle.trim() === "";
+                    const newCompanyMissing = !newData.companyName || newData.companyName.trim() === "";
+                    
+                    if ((!newTitleMissing && !newCompanyMissing) || attempts >= 8) {
+                        clearInterval(interval);
+                        sendResponse(newData);
+                    }
+                }, 500);
+                return true; // Keep channel open for async response
+            } else {
+                sendResponse(data);
+            }
         } else if (message.action === "toggleJobTracker") {
             toggleTrackerIframe();
             sendResponse({ status: "toggled" });

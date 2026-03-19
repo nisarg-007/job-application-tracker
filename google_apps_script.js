@@ -46,11 +46,13 @@ const ACCENT_BORDER   = "#3949ab";
 const ROW_ODD         = "#f8f9ff";
 const ROW_EVEN        = "#ffffff";
 
-const APPLIED_COLOR   = "#e8f5e9";
-const REJECTED_COLOR  = "#fce4ec";
-const OA_COLOR        = "#e3f2fd";
-const SCREENING_COLOR = "#fff3e0";
-const ROUND_COLOR     = "#f3e5f5";
+const APPLIED_COLOR   = "#b7e1cd"; // Green chip
+const REJECTED_COLOR  = "#ea9999"; // Red chip
+const OA_COLOR        = "#fce8b2"; // Yellow chip
+const SCREENING_COLOR = "#d7aefb"; // Purple chip
+const ROUND1_COLOR    = "#f4cccc"; // Pink chip
+const ROUND2_COLOR    = "#f1f3f4"; // Grey chip
+const ROUND3_COLOR    = "#f1f3f4"; // Grey chip
 
 const STATUS_VALUES = ["Applied", "Rejected", "OA", "Screening Call", "1st Round", "2nd Round", "3rd Round"];
 const NUM_COLS = 9; // A through I
@@ -497,9 +499,9 @@ function styleDataRow(sheet, rowNum, status) {
         case "Rejected":       statusBg = REJECTED_COLOR;  break;
         case "OA":             statusBg = OA_COLOR;        break;
         case "Screening Call": statusBg = SCREENING_COLOR; break;
-        case "1st Round":
-        case "2nd Round":
-        case "3rd Round":      statusBg = ROUND_COLOR;     break;
+        case "1st Round":      statusBg = ROUND1_COLOR;    break;
+        case "2nd Round":      statusBg = ROUND2_COLOR;    break;
+        case "3rd Round":      statusBg = ROUND3_COLOR;    break;
     }
 
     // Status col H = 8
@@ -515,6 +517,17 @@ function styleDataRow(sheet, rowNum, status) {
 }
 
 function applyStatusValidation(sheet, rowNum) {
+    // Attempt to copy existing data validation from the row below to preserve user's custom chip colors
+    const lastRow = sheet.getLastRow();
+    if (lastRow > rowNum) {
+        const existingRule = sheet.getRange(rowNum + 1, 8).getDataValidation();
+        if (existingRule) {
+            sheet.getRange(rowNum, 8).setDataValidation(existingRule);
+            return;
+        }
+    }
+    
+    // Fallback default validation rule
     const rule = SpreadsheetApp.newDataValidation()
         .requireValueInList(STATUS_VALUES, true)
         .setAllowInvalid(false)

@@ -39,8 +39,9 @@ const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
 
 const HEADER_BG = "#1a237e"; const HEADER_TEXT = "#ffffff"; const ACCENT_BORDER = "#3949ab";
 const ROW_ODD = "#f8f9ff"; const ROW_EVEN = "#ffffff";
-const APPLIED_COLOR = "#e8f5e9"; const REJECTED_COLOR = "#fce4ec";
-const OA_COLOR = "#e3f2fd"; const SCREENING_COLOR = "#fff3e0"; const ROUND_COLOR = "#f3e5f5";
+const APPLIED_COLOR = "#b7e1cd"; const REJECTED_COLOR = "#ea9999"; 
+const OA_COLOR = "#fce8b2"; const SCREENING_COLOR = "#d7aefb"; 
+const ROUND1_COLOR = "#f4cccc"; const ROUND2_COLOR = "#f1f3f4"; const ROUND3_COLOR = "#f1f3f4";
 const STATUS_VALUES = ["Applied","Rejected","OA","Screening Call","1st Round","2nd Round","3rd Round"];
 
 // ⚠️ RUN authorizePermissions() ONCE before deploying to grant Drive access!
@@ -100,8 +101,16 @@ function saveApplication(sheet, data, ss) {
     sheet.getRange(nr,7).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("Tailored").setLinkUrl(tailoredUrl).build());
   }
   styleDataRow(sheet, nr, status);
-  const rule = SpreadsheetApp.newDataValidation().requireValueInList(STATUS_VALUES, true).setAllowInvalid(false).build();
-  sheet.getRange(nr,8).setDataValidation(rule);
+  const lastRow = sheet.getLastRow();
+  let ruleToApply = null;
+  if (lastRow > nr) {
+    const existingRule = sheet.getRange(nr + 1, 8).getDataValidation();
+    if (existingRule) ruleToApply = existingRule;
+  }
+  if (!ruleToApply) {
+    ruleToApply = SpreadsheetApp.newDataValidation().requireValueInList(STATUS_VALUES, true).setAllowInvalid(false).build();
+  }
+  sheet.getRange(nr,8).setDataValidation(ruleToApply);
   return _jsonResponse({ status: "success", message: "Application saved!", row: nr });
 }
 
@@ -148,7 +157,9 @@ function styleDataRow(sheet, rowNum, status) {
   else if(status==="Rejected") s=REJECTED_COLOR;
   else if(status==="OA") s=OA_COLOR;
   else if(status==="Screening Call") s=SCREENING_COLOR;
-  else if(status==="1st Round"||status==="2nd Round"||status==="3rd Round") s=ROUND_COLOR;
+  else if(status==="1st Round") s=ROUND1_COLOR;
+  else if(status==="2nd Round") s=ROUND2_COLOR;
+  else if(status==="3rd Round") s=ROUND3_COLOR;
   sheet.getRange(rowNum,8).setBackground(s).setHorizontalAlignment("center").setFontWeight("bold");
   [1,4,7].forEach(c => sheet.getRange(rowNum,c).setHorizontalAlignment("center"));
 }
