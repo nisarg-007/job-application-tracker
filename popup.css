@@ -430,6 +430,11 @@ body {
   padding-right: 32px;
 }
 
+.field select option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
 /* ─── Save button ─── */
 #saveBtn {
   width: 100%;
