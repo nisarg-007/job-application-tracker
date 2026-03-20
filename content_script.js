@@ -206,6 +206,17 @@
                 if (t && !/^(startups?|companies|jobs|discover|home)$/i.test(t)) {
                     companyName = t;
                 }
+            } else if (hostname.includes("greenhouse.io")) {
+                if (parts.length > 0) {
+                    let comp = parts[0];
+                    if (comp !== "embed" && comp !== "jobs") {
+                        return comp.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                    } else if (parts.length > 1) {
+                        return parts[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                    }
+                }
+            } else if (hostname.includes("myworkdayjobs.com")) {
+                return hostname.split(".")[0].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
             }
 
             // Fallback: the prominent company name heading on the page
