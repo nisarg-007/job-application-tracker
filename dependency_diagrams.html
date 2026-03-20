@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Book Royalty – Dependency Diagrams (Corrected)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f0ece3;
+            padding: 40px 30px;
+            color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        h1 span {
+            display: block;
+            font-size: 12px;
+            font-weight: normal;
+            letter-spacing: 2px;
+            color: #888;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        /* ── section label ── */
+        .section-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-align: center;
+            margin: 28px 0 8px;
+        }
+
+        /* ── diagram card ── */
+        .diagram-wrap {
+            background: #fff;
+            border: 2px solid #c5c0b4;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        /* olive title bar */
+        .diagram-title {
+            background: #7a7a35;
+            color: #fff;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 5px 14px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        svg.dep-svg {
+            display: block;
+            overflow: visible;
+        }
+
+        /* box fills */
+        .box-blue {
+            fill: #2d5fa8;
+        }
+
+        .box-gold {
+            fill: #c8951a;
+        }
+
+        .box-fk {
+            fill: #8B1A1A;
+        }
+
+        rect.attr-box {
+            rx: 3;
+            ry: 3;
+            stroke: #fff;
+            stroke-width: 1.5;
+        }
+
+        text.attr-label {
+            fill: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12.5px;
+            font-weight: bold;
+            dominant-baseline: middle;
+            text-anchor: middle;
+        }
+
+        .dep-arrow {
+            fill: none;
+            stroke: #8B1A1A;
+            stroke-width: 1.8;
+        }
+
+        /* ── note strip ── */
+        .dep-note {
+            padding: 7px 14px 9px;
+            font-size: 11.5px;
+            color: #444;
+            border-top: 1px solid #e8e4dc;
+            background: #fafaf7;
+            line-height: 1.6;
+        }
+
+        .dep-note b {
+            color: #222;
+        }
+
+        /* ── explanation box ── */
+        .explain {
+            border-left: 4px solid #7a7a35;
+            background: #fffff0;
+            padding: 12px 16px;
+            margin: 10px 0 18px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #333;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .explain h3 {
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            color: #5a5a00;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .explain ul {
+            padding-left: 20px;
+        }
+
+        .explain li {
+            margin-bottom: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 7px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            margin-right: 4px;
+        }
+
+        .badge-partial {
+            background: #c87000;
+        }
+
+        .badge-transitive {
+            background: #8B1A1A;
+        }
+
+        .badge-direct {
+            background: #2d7a2d;
+        }
+
+        .badge-ok {
+            background: #2d5fa8;
+        }
+
+        /* ── legend ── */
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 8px 14px;
+            border-top: 1px solid #ddd;
+            background: #f5f5f0;
+            font-size: 11.5px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lb {
+            width: 16px;
+            height: 13px;
+            border-radius: 2px;
+        }
+
+        .lb-pk {
+            background: #2d5fa8;
+        }
+
+        .lb-at {
+            background: #c8951a;
+        }
+
+        .lb-fk {
+            background: #8B1A1A;
+        }
+
+        /* ── callout ── */
+        .callout {
+            background: #fff3cd;
+            border: 1.5px solid #ffc107;
+            border-radius: 4px;
+            padding: 10px 16px;
+            margin: 10px 0 20px;
+            font-size: 12.5px;
+            color: #444;
+        }
+
+        .callout strong {
+            color: #7a5800;
+        }
+
+        hr.divider {
+            border: none;
+            border-top: 2px dashed #c5c0b4;
+            margin: 30px 0 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+    <h1>Book Royalty — Dependency Diagrams
+        <span>Figure Q6.7 · Full Normalization Analysis (1NF → 2NF → 3NF)</span>
+    </h1>
+
+    <!-- ══════════════════════════════════════════════
+     PART 1 — ORIGINAL TABLE (1NF)
+══════════════════════════════════════════════ -->
+    <p class="section-label">Original Table (1NF)</p>
+
+    <div class="explain">
+        <h3>📌 What is 1NF?</h3>
+        All data is stored in a single flat table. No repeating groups. Every cell holds exactly one value.
+        <br><br>
+        <b>Original Relation:</b> BOOK_ROYALTY (ISBN, BookTitle, Author_Name, LastName, Publisher, Royalty, Edition)<br>
+        <b>Primary Key:</b> <u>ISBN</u> (single attribute — underlined in diagrams)<br><br>
+        <ul>
+            <li><span class="badge badge-direct">DIRECT</span> ISBN → BookTitle, Author_Name, LastName, Publisher,
+                Royalty, Edition (ISBN determines everything)</li>
+            <li><span class="badge badge-transitive">TRANSITIVE</span> Author_Name → LastName &nbsp;(non-key → non-key,
+                violates 3NF)</li>
+            <li><span class="badge badge-transitive">TRANSITIVE</span> Publisher → Royalty &nbsp;(non-key → non-key,
+                violates 3NF)</li>
+        </ul>
+    </div>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE Q6.7 &nbsp; BOOK ROYALTY DEPENDENCY DIAGRAM</div>
+        <svg class="dep-svg" viewBox="0 0 900 260" width="100%" height="260">
+            <defs>
+                <marker id="ah1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#8B1A1A" />
+                </marker>
+            </defs>
+
+            <!-- BIG ARC: ISBN → all (full FDs) above -->
+            <path class="dep-arrow" marker-end="url(#ah1)" d="M 65,118  C 65,35  800,35  800,118"
+                stroke-dasharray="none" />
+
+            <!-- Transitive: Author_Name → LastName  (arc above, short) -->
+            <path class="dep-arrow" marker-end="url(#ah1)" d="M 310,118  C 310,75  440,75  440,118" />
+
+            <!-- Transitive: Publisher → Royalty  (arc above, short) -->
+            <path class="dep-arrow" marker-end="url(#ah1)" d="M 560,118  C 560,75  670,75  670,118" />
+
+            <!-- Arrows BELOW: ISBN → BookTitle -->
+            <path class="dep-arrow" marker-end="url(#ah1)" d="M 65,154  C 65,205  185,205  185,154" />
+
+            <!-- Arrows BELOW: ISBN → Publisher -->
+            <path class="dep-arrow" marker-end="url(#ah1)" d="M 65,154  C 65,215  560,215  560,154" />
+
+            <!-- Arrows BELOW: ISBN → Edition -->
+            <path class="dep-arrow" marker-end="url(#ah1)" d="M 65,154  C 65,225  800,225  800,154" />
+
+            <!-- BOXES -->
+            <rect class="attr-box box-blue" x="10" y="118" width="110" height="36" />
+            <text class="attr-label" x="65" y="137">ISBN</text>
+            <!-- underline for PK -->
+            <line x1="22" y1="148" x2="108" y2="148" stroke="#fff" stroke-width="1.5" />
+
+            <rect class="attr-box box-gold" x="135" y="118" width="110" height="36" />
+            <text class="attr-label" x="190" y="137">BookTitle</text>
+
+            <rect class="attr-box box-gold" x="260" y="118" width="125" height="36" />
+            <text class="attr-label" x="322" y="137">Author_Name</text>
+
+            <rect class="attr-box box-gold" x="400" y="118" width="110" height="36" />
+            <text class="attr-label" x="455" y="137">LastName</text>
+
+            <rect class="attr-box box-gold" x="525" y="118" width="110" height="36" />
+            <text class="attr-label" x="580" y="137">Publisher</text>
+
+            <rect class="attr-box box-gold" x="650" y="118" width="100" height="36" />
+            <text class="attr-label" x="700" y="137">Royalty</text>
+
+            <rect class="attr-box box-gold" x="765" y="118" width="100" height="36" />
+            <text class="attr-label" x="815" y="137">Edition</text>
+        </svg>
+        <div class="dep-note">
+            <b>PK:</b> ISBN &nbsp;|&nbsp;
+            <b>Full FDs:</b> ISBN → BookTitle, Author_Name, LastName, Publisher, Royalty, Edition
+            (large arc above) &nbsp;|&nbsp;
+            <b>Transitive:</b> Author_Name → LastName &nbsp;&amp;&nbsp; Publisher → Royalty (short arcs above)
+            &nbsp;|&nbsp;
+            <b>Sub-FDs below:</b> ISBN → BookTitle, Publisher, Edition
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="lb lb-pk"></div> Primary Key (PK)
+            </div>
+            <div class="legend-item">
+                <div class="lb lb-at"></div> Non-key Attribute
+            </div>
+            <div class="legend-item">↑ Arc above = functional dependency &nbsp;|&nbsp; ↓ Arc below = direct
+                sub-dependency shown explicitly</div>
+        </div>
+    </div>
+
+    <div class="callout">
+        <strong>⚠️ Why is this only 1NF?</strong><br>
+        The table has a <b>single-attribute PK (ISBN)</b> — so there are <b>NO partial dependencies</b>
+        (you can only have partial deps with a composite key). However, it has two
+        <b>transitive dependencies</b>: <code>ISBN → Author_Name → LastName</code> and
+        <code>ISBN → Publisher → Royalty</code>. These violate 3NF but not 2NF.
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ══════════════════════════════════════════════
+     PART 2 — 2NF
+══════════════════════════════════════════════ -->
+    <p class="section-label">2NF — Already Satisfied</p>
+
+    <div class="explain">
+        <h3>📌 What is 2NF?</h3>
+        A table is in 2NF when it is in 1NF AND every non-key attribute is
+        <b>fully functionally dependent</b> on the <em>entire</em> primary key
+        (no partial dependencies).<br><br>
+        Because our PK is a <b>single attribute (ISBN)</b>, it is <b>impossible</b> to have
+        a partial dependency — every attribute must depend on ISBN (the whole key).
+        Therefore the original table is <b>already in 2NF</b>.<br><br>
+        <b>No decomposition is required for 2NF.</b>
+    </div>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">2NF — TABLE: BOOK_ROYALTY &nbsp;(Unchanged — Already in 2NF)</div>
+        <svg class="dep-svg" viewBox="0 0 900 220" width="100%" height="220">
+            <defs>
+                <marker id="ah2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#8B1A1A" />
+                </marker>
+            </defs>
+
+            <!-- All FDs from ISBN above -->
+            <path class="dep-arrow" marker-end="url(#ah2)" d="M 65,108  C 65,35  800,35  800,108" />
+
+            <!-- Transitive: Author_Name → LastName -->
+            <path class="dep-arrow" marker-end="url(#ah2)" d="M 322,108  C 322,70  455,70  455,108" stroke="#c87000"
+                stroke-dasharray="5,3" />
+
+            <!-- Transitive: Publisher → Royalty -->
+            <path class="dep-arrow" marker-end="url(#ah2)" d="M 580,108  C 580,70  700,70  700,108" stroke="#c87000"
+                stroke-dasharray="5,3" />
+
+            <!-- BOXES -->
+            <rect class="attr-box box-blue" x="10" y="108" width="110" height="36" />
+            <text class="attr-label" x="65" y="127">ISBN</text>
+            <line x1="22" y1="138" x2="108" y2="138" stroke="#fff" stroke-width="1.5" />
+
+            <rect class="attr-box box-gold" x="135" y="108" width="110" height="36" />
+            <text class="attr-label" x="190" y="127">BookTitle</text>
+
+            <rect class="attr-box box-gold" x="260" y="108" width="125" height="36" />
+            <text class="attr-label" x="322" y="127">Author_Name</text>
+
+            <rect class="attr-box box-gold" x="400" y="108" width="110" height="36" />
+            <text class="attr-label" x="455" y="127">LastName</text>
+
+            <rect class="attr-box box-gold" x="525" y="108" width="110" height="36" />
+            <text class="attr-label" x="580" y="127">Publisher</text>
+
+            <rect class="attr-box box-gold" x="650" y="108" width="100" height="36" />
+            <text class="attr-label" x="700" y="127">Royalty</text>
+
+            <rect class="attr-box box-gold" x="765" y="108" width="100" height="36" />
+            <text class="attr-label" x="815" y="127">Edition</text>
+        </svg>
+        <div class="dep-note">
+            <b>PK:</b> ISBN &nbsp;|&nbsp;
+            ✅ <b>No partial dependencies</b> — single-attribute PK means every attribute depends on the whole key.<br>
+            ⚠️ <b>Dashed orange arcs</b> = transitive dependencies still present (Author_Name→LastName,
+            Publisher→Royalty) — these violate <b>3NF</b>, not 2NF.
+        </div>
+    </div>
+
+    <div class="callout">
+        <strong>Key rule:</strong> Partial dependencies can <em>only</em> occur when the primary key is
+        <b>composite (multi-attribute)</b>. Since ISBN alone is the PK here, the table satisfies 2NF automatically.
+        The transitive dependencies are a <b>3NF violation</b>, not a 2NF violation.
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ══════════════════════════════════════════════
+     PART 3 — 3NF
+══════════════════════════════════════════════ -->
+    <p class="section-label">3NF — Remove Transitive Dependencies</p>
+
+    <div class="explain">
+        <h3>📌 What is 3NF?</h3>
+        A table is in 3NF when it is in 2NF AND no non-key attribute is transitively dependent
+        on the primary key — meaning <b>no non-key attribute determines another non-key attribute</b>.<br><br>
+        <b>Two transitive chains to break:</b><br>
+        <ul>
+            <li><span class="badge badge-transitive">TRANSITIVE</span>
+                <code>ISBN → Author_Name → LastName</code>
+                &nbsp;→&nbsp; Extract <b>AUTHOR(Author_Name, LastName)</b>
+            </li>
+            <li><span class="badge badge-transitive">TRANSITIVE</span>
+                <code>ISBN → Publisher → Royalty</code>
+                &nbsp;→&nbsp; Extract <b>PUBLISHER(Publisher, Royalty)</b>
+            </li>
+        </ul>
+        <br>
+        <b>Result: 3 tables</b> — BOOK, AUTHOR, PUBLISHER
+    </div>
+
+    <!-- 3NF Table 1: BOOK -->
+    <div class="diagram-wrap">
+        <div class="diagram-title">3NF — TABLE 1: BOOK</div>
+        <svg class="dep-svg" viewBox="0 0 720 210" width="100%" height="210">
+            <defs>
+                <marker id="ah3a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#8B1A1A" />
+                </marker>
+            </defs>
+
+            <!-- ISBN → BookTitle below -->
+            <path class="dep-arrow" marker-end="url(#ah3a)" d="M 65,154  C 65,195  210,195  210,154" />
+            <!-- ISBN → Author_Name(FK) below -->
+            <path class="dep-arrow" marker-end="url(#ah3a)" d="M 65,154  C 65,200  370,200  370,154" />
+            <!-- ISBN → Publisher(FK) below -->
+            <path class="dep-arrow" marker-end="url(#ah3a)" d="M 65,154  C 65,207  540,207  540,154" />
+            <!-- ISBN → Edition below -->
+            <path class="dep-arrow" marker-end="url(#ah3a)" d="M 65,154  C 65,215  660,215  660,154" />
+
+            <!-- Full arc above -->
+            <path class="dep-arrow" marker-end="url(#ah3a)" d="M 65,118  C 65,50  660,50  660,118" />
+
+            <!-- BOXES -->
+            <rect class="attr-box box-blue" x="10" y="118" width="110" height="36" />
+            <text class="attr-label" x="65" y="137">ISBN</text>
+            <line x1="22" y1="148" x2="108" y2="148" stroke="#fff" stroke-width="1.5" />
+
+            <rect class="attr-box box-gold" x="140" y="118" width="120" height="36" />
+            <text class="attr-label" x="200" y="137">BookTitle</text>
+
+            <!-- Author_Name as FK -->
+            <rect class="attr-box box-fk" x="275" y="118" width="145" height="36" />
+            <text class="attr-label" x="347" y="137">Author_Name (FK)</text>
+
+            <!-- Publisher as FK -->
+            <rect class="attr-box box-fk" x="435" y="118" width="130" height="36" />
+            <text class="attr-label" x="500" y="137">Publisher (FK)</text>
+
+            <rect class="attr-box box-gold" x="580" y="118" width="100" height="36" />
+            <text class="attr-label" x="630" y="137">Edition</text>
+        </svg>
+        <div class="dep-note">
+            <b>PK:</b> ISBN &nbsp;|&nbsp;
+            <b>FK:</b> Author_Name → AUTHOR &nbsp;|&nbsp;
+            <b>FK:</b> Publisher → PUBLISHER &nbsp;|&nbsp;
+            ✅ All non-key attributes depend <b>directly</b> on ISBN only — no transitive deps remain.
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="lb lb-pk"></div> PK
+            </div>
+            <div class="legend-item">
+                <div class="lb lb-at"></div> Non-key Attribute
+            </div>
+            <div class="legend-item">
+                <div class="lb lb-fk"></div> Foreign Key (FK)
+            </div>
+        </div>
+    </div>
+
+    <!-- 3NF Table 2: AUTHOR -->
+    <div class="diagram-wrap">
+        <div class="diagram-title">3NF — TABLE 2: AUTHOR &nbsp;(New — Extracted to break Author_Name → LastName)</div>
+        <svg class="dep-svg" viewBox="0 0 500 180" width="100%" height="180">
+            <defs>
+                <marker id="ah3b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#8B1A1A" />
+                </marker>
+            </defs>
+            <!-- Author_Name → LastName -->
+            <path class="dep-arrow" marker-end="url(#ah3b)" d="M 155,108  C 155,162  330,162  330,144" />
+
+            <rect class="attr-box box-blue" x="10" y="108" width="290" height="36" />
+            <text class="attr-label" x="155" y="127">Author_Name</text>
+            <line x1="22" y1="138" x2="288" y2="138" stroke="#fff" stroke-width="1.5" />
+
+            <rect class="attr-box box-gold" x="315" y="108" width="130" height="36" />
+            <text class="attr-label" x="380" y="127">LastName</text>
+        </svg>
+        <div class="dep-note">
+            <b>PK:</b> Author_Name &nbsp;|&nbsp;
+            Author_Name → LastName is now a <b>DIRECT</b> dependency (PK → non-key) ✅ &nbsp;|&nbsp;
+            The transitive chain <code>ISBN → Author_Name → LastName</code> in BOOK is now broken.
+        </div>
+    </div>
+
+    <!-- 3NF Table 3: PUBLISHER -->
+    <div class="diagram-wrap">
+        <div class="diagram-title">3NF — TABLE 3: PUBLISHER &nbsp;(New — Extracted to break Publisher → Royalty)</div>
+        <svg class="dep-svg" viewBox="0 0 500 180" width="100%" height="180">
+            <defs>
+                <marker id="ah3c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#8B1A1A" />
+                </marker>
+            </defs>
+            <!-- Publisher → Royalty -->
+            <path class="dep-arrow" marker-end="url(#ah3c)" d="M 140,108  C 140,162  330,162  330,144" />
+
+            <rect class="attr-box box-blue" x="10" y="108" width="270" height="36" />
+            <text class="attr-label" x="145" y="127">Publisher</text>
+            <line x1="22" y1="138" x2="268" y2="138" stroke="#fff" stroke-width="1.5" />
+
+            <rect class="attr-box box-gold" x="295" y="108" width="120" height="36" />
+            <text class="attr-label" x="355" y="127">Royalty</text>
+        </svg>
+        <div class="dep-note">
+            <b>PK:</b> Publisher &nbsp;|&nbsp;
+            Publisher → Royalty is now a <b>DIRECT</b> dependency (PK → non-key) ✅ &nbsp;|&nbsp;
+            The transitive chain <code>ISBN → Publisher → Royalty</code> in BOOK is now broken.
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     SUMMARY TABLE
+══════════════════════════════════════════════ -->
+    <hr class="divider" />
+    <p class="section-label">Summary — Normalization Steps</p>
+
+    <div style="background:#fff;border:2px solid #c5c0b4;border-radius:4px;overflow:hidden;margin-bottom:24px;">
+        <div class="diagram-title">NORMALIZATION SUMMARY</div>
+        <div style="padding:14px 16px;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="background:#7a7a35;color:#fff;">
+                        <th style="padding:8px 10px;text-align:left;">Normal Form</th>
+                        <th style="padding:8px 10px;text-align:left;">Tables</th>
+                        <th style="padding:8px 10px;text-align:left;">Violation Present?</th>
+                        <th style="padding:8px 10px;text-align:left;">Action Taken</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background:#fff8f0;">
+                        <td style="padding:8px 10px;font-weight:bold;">1NF</td>
+                        <td style="padding:8px 10px;">BOOK_ROYALTY (all 7 attrs)</td>
+                        <td style="padding:8px 10px;">✅ 1NF satisfied<br>⚠️ Two transitive deps</td>
+                        <td style="padding:8px 10px;">None for 1NF.<br>No repeating groups.</td>
+                    </tr>
+                    <tr style="background:#f5f5e8;">
+                        <td style="padding:8px 10px;font-weight:bold;">2NF</td>
+                        <td style="padding:8px 10px;">BOOK_ROYALTY (unchanged)</td>
+                        <td style="padding:8px 10px;">✅ 2NF satisfied<br>(no composite key = no partial deps)</td>
+                        <td style="padding:8px 10px;">No decomposition needed.<br>Single PK = already 2NF.</td>
+                    </tr>
+                    <tr style="background:#f0f7f0;">
+                        <td style="padding:8px 10px;font-weight:bold;">3NF</td>
+                        <td style="padding:8px 10px;">
+                            BOOK (ISBN, BookTitle, Author_Name FK, Publisher FK, Edition)<br>
+                            AUTHOR (Author_Name, LastName)<br>
+                            PUBLISHER (Publisher, Royalty)
+                        </td>
+                        <td style="padding:8px 10px;">✅ 3NF satisfied<br>All transitive deps removed</td>
+                        <td style="padding:8px 10px;">
+                            Extracted Author_Name→LastName → AUTHOR<br>
+                            Extracted Publisher→Royalty → PUBLISHER
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dep-note" style="border-top:2px solid #e0dcd0;">
+            <b>3NF Rule (memory trick):</b> "Every non-key attribute must depend on
+            <em>the key</em> (2NF), <em>the whole key</em> (2NF), and
+            <b><em>nothing but the key</em></b> (3NF) — so help me Codd."
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -22,6 +22,7 @@ const $urlInput = document.getElementById("webAppUrl");
 const $sheetUrlInput = document.getElementById("sheetUrl");
 const $urlValid = document.getElementById("urlValidation");
 const $dailyGoal = document.getElementById("dailyGoal");
+const $driveFolderIdInput = document.getElementById("driveFolderId");
 
 // ─── Apps Script code (embedded so users can copy it) ─────
 
@@ -236,11 +237,13 @@ $dots.forEach((dot) => {
 async function saveSettings() {
   const url = $urlInput.value.trim();
   const sUrl = $sheetUrlInput.value.trim();
+  const dId = $driveFolderIdInput.value.trim();
   const goal = parseInt($dailyGoal.value) || 5;
 
   await chrome.storage.local.set({
     webAppUrl: url,
     sheetUrl: sUrl,
+    driveFolderId: dId,
     dailyGoal: goal,
     setupComplete: true,
     installedAt: new Date().toISOString(),
@@ -254,9 +257,10 @@ async function saveSettings() {
 
 async function init() {
   try {
-    const data = await chrome.storage.local.get(["webAppUrl", "sheetUrl", "dailyGoal"]);
+    const data = await chrome.storage.local.get(["webAppUrl", "sheetUrl", "driveFolderId", "dailyGoal"]);
     if (data.webAppUrl) $urlInput.value = data.webAppUrl;
     if (data.sheetUrl) $sheetUrlInput.value = data.sheetUrl;
+    if (data.driveFolderId) $driveFolderIdInput.value = data.driveFolderId;
     if (data.dailyGoal) $dailyGoal.value = data.dailyGoal;
   } catch { /* no prior data */ }
 }
