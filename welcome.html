@@ -24,13 +24,8 @@
 
         <!-- ═══════════ STEP 0: Welcome ═══════════ -->
         <section class="step active" data-step="0">
-            <div class="step-icon welcome-icon">
-                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                    <path d="M16 7V5a4 4 0 0 0-8 0v2" />
-                    <line x1="12" y1="12" x2="12" y2="16" />
-                </svg>
+            <div class="step-icon welcome-icon" style="background: none; box-shadow: none;">
+                <img src="icons/icon128.png" alt="Job Tracker Icon" width="64" height="64" />
             </div>
             <h1>Welcome to <span class="gradient-text">Job Tracker</span></h1>
             <p class="step-desc">
@@ -103,8 +98,8 @@
                         <div class="code-copy-area" style="margin-top: 10px; margin-bottom: 0;">
                             <div class="code-header">
                                 <span
-                                    style="font-family: monospace; font-size: 0.8em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">Timestamp
-                                    Application Date Job Title Company Name URL...</span>
+                                    style="font-family: monospace; font-size: 0.8em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">Date
+                                    Applied Company Role JD Location...</span>
                                 <button id="copyHeadersBtn" class="copy-btn">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
@@ -117,21 +112,26 @@
                         </div>
                     </div>
                 </div>
+                <div class="instruction">
+                    <div class="instruction-num">4</div>
+                    <div>
+                        <strong>Create the Resumes sheet tab</strong>
+                        <p>Add a second sheet tab (click <code>+</code> at the bottom) and rename it to exactly: <code>Resumes</code></p>
+                        <p style="margin-top:4px; font-size:0.9em; color:var(--text-muted);">This sheet is auto-populated with your resume library whenever you sync from the extension.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="columns-preview" style="margin-top: 15px;">
-                <div class="col-chip">A: Timestamp</div>
-                <div class="col-chip">B: Application Date</div>
-                <div class="col-chip">C: Job Title</div>
-                <div class="col-chip">D: Company Name</div>
-                <div class="col-chip">E: URL</div>
-                <div class="col-chip">F: Location</div>
-                <div class="col-chip">G: Salary</div>
-                <div class="col-chip">H: Resume Used</div>
-                <div class="col-chip">I: Confidence Level</div>
-                <div class="col-chip">J: Source</div>
-                <div class="col-chip">K: Status</div>
-                <div class="col-chip">L: Notes</div>
+                <div class="col-chip">A: Date Applied</div>
+                <div class="col-chip">B: Company</div>
+                <div class="col-chip">C: Role</div>
+                <div class="col-chip">D: JD <span style="opacity:.6;font-size:.85em">(→ "link")</span></div>
+                <div class="col-chip">E: Location</div>
+                <div class="col-chip">F: Salary</div>
+                <div class="col-chip">G: Resume <span style="opacity:.6;font-size:.85em">(→ hyperlink)</span></div>
+                <div class="col-chip">H: Status</div>
+                <div class="col-chip">I: Notes</div>
             </div>
 
             <div class="tip-box">
@@ -164,9 +164,25 @@
                 <div class="instruction">
                     <div class="instruction-num">2</div>
                     <div>
+                        <strong>Add your IDs (optional)</strong>
+                        <div class="url-input-area" style="margin-top: 5px; margin-bottom: 10px;">
+                            <label for="inputSheetId">Google Sheet ID <span class="optional">(optional if bound to sheet)</span></label>
+                            <input type="text" id="inputSheetId" placeholder="e.g. 1BxiMVs0XRYFgwn..." autocomplete="off" spellcheck="false" />
+                            <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 5px;">Found in your Google Sheet URL.</p>
+                        </div>
+                        <div class="url-input-area" style="margin-bottom: 10px;">
+                            <label for="inputDriveId">Google Drive Folder ID <span class="optional">(required for Resumes)</span></label>
+                            <input type="text" id="inputDriveId" placeholder="e.g. 1A2b3C4d5E6f7G8h9I0j..." autocomplete="off" spellcheck="false" />
+                            <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 5px;">Create a folder in Drive and copy the ID from the URL.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">3</div>
+                    <div>
                         <strong>Replace all code</strong>
                         <p>Delete everything in <code>Code.gs</code>, then click the button below to copy the script
-                            code, and paste it in.</p>
+                            code, and paste it in. (It automatically includes any IDs you typed above!)</p>
                     </div>
                 </div>
             </div>
@@ -188,14 +204,22 @@
 
             <div class="instruction-list" style="margin-top:16px;">
                 <div class="instruction">
-                    <div class="instruction-num">3</div>
+                    <div class="instruction-num">4</div>
+                    <div>
+                        <strong>Authorize Permissions Once</strong>
+                        <p>In Apps Script, select <code>authorizePermissions</code> from the dropdown next to the "Run" button, and click <strong>Run</strong>.</p>
+                        <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 5px;">(Accept all warnings to allow the script to modify your Drive and Sheets)</p>
+                    </div>
+                </div>
+                <div class="instruction">
+                    <div class="instruction-num">5</div>
                     <div>
                         <strong>Save &amp; Deploy</strong>
                         <p>Click 💾 Save, then <strong>Deploy → New deployment</strong></p>
                     </div>
                 </div>
                 <div class="instruction">
-                    <div class="instruction-num">4</div>
+                    <div class="instruction-num">6</div>
                     <div>
                         <strong>Configure deployment</strong>
                         <p>Click ⚙ gear → <strong>Web app</strong></p>
@@ -206,7 +230,7 @@
                     </div>
                 </div>
                 <div class="instruction">
-                    <div class="instruction-num">5</div>
+                    <div class="instruction-num">7</div>
                     <div>
                         <strong>Authorize &amp; Copy URL</strong>
                         <p>Click Deploy → Authorize → Allow → <strong>Copy the Web App URL</strong></p>
@@ -346,7 +370,7 @@
 
         <!-- Creator Credit -->
         <footer class="creator-footer">
-            <span class="creator-tag">crafted by <strong>Nisarg Shah</strong> <span class="vibe-badge">Vibe
+            <span class="creator-tag">crafted by <strong>Nisarg Shah and Somil Doshi</strong> <span class="vibe-badge">Vibe
                     Coder</span></span>
         </footer>
     </div>

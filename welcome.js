@@ -2,7 +2,7 @@
    welcome.js — Onboarding wizard logic
    Handles step navigation, URL validation, script copy,
    and saves config to chrome.storage.local
-   Created by Nisarg Shah [Vibe Coder]
+   Created by Nisarg Shah and Somil Doshi [Vibe Coder]
    ========================================================= */
 
 "use strict";
@@ -27,78 +27,243 @@ const $driveFolderIdInput = document.getElementById("driveFolderId");
 // ─── Apps Script code (embedded so users can copy it) ─────
 
 const APPS_SCRIPT_CODE = `// ── Google Apps Script — Job Application Tracker ──
-// Created by Nisarg Shah [Vibe Coder]
+// Created by Nisarg Shah and Somil Doshi [Vibe Coder]
 // Paste this into Extensions → Apps Script → Code.gs
 
 const SHEET_NAME = "Applications";
+const RESUMES_SHEET_NAME = "Resumes";
+
+// ⚠️ Set this to your Drive folder ID (from the folder URL)
+// Leave as-is to save files to root Drive
+const DRIVE_FOLDER_ID = "YOUR_DRIVE_FOLDER_ID_HERE";
+const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
+
+const HEADER_BG = "#1a237e"; const HEADER_TEXT = "#ffffff"; const ACCENT_BORDER = "#3949ab";
+const ROW_ODD = "#f8f9ff"; const ROW_EVEN = "#ffffff";
+const APPLIED_COLOR = "#b7e1cd"; const REJECTED_COLOR = "#ea9999"; 
+const OA_COLOR = "#fce8b2"; const SCREENING_COLOR = "#d7aefb"; 
+const ROUND1_COLOR = "#f4cccc"; const ROUND2_COLOR = "#f1f3f4"; const ROUND3_COLOR = "#f1f3f4";
+const STATUS_VALUES = ["Applied","Rejected","OA","Screening Call","1st Round","2nd Round","3rd Round"];
+
+// ⚠️ RUN authorizePermissions() ONCE before deploying to grant Drive access!
+function authorizePermissions() {
+  DriveApp.getRootFolder();
+  (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
+  Logger.log("Permissions authorized! You can now deploy.");
+}
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const ss    = SpreadsheetApp.getActiveSpreadsheet();
-    
+    const ss = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
+    if (data.action === "uploadGeneralResume") return handleGeneralResumeUpload(data, ss);
     let sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) {
-        sheet = ss.getSheets()[0];
-    }
-
-    if (!sheet) {
-      return _jsonResponse({
-        status: "error",
-        message: "Could not find any sheets.",
-      });
-    }
-
-    const row = [
-      data.timestamp       || new Date().toLocaleString(),
-      data.applicationDate || "",
-      data.jobTitle        || "",
-      data.companyName     || "",
-      data.url             || "",
-      data.location        || "",
-      data.salary          || "",
-      data.resumeUsed      || "",
-      data.likelihood      || "",
-      data.source          || "",
-      data.status          || "Applied",
-      data.notes           || "",
-    ];
-
-    sheet.appendRow(row);
-
-    return _jsonResponse({
-      status: "success",
-      message: "Application saved!",
-      row: sheet.getLastRow(),
-    });
+    if (!sheet) { sheet = ss.insertSheet(SHEET_NAME); setupApplicationsSheet(sheet); }
+    else if (sheet.getLastRow() < 1) { setupApplicationsSheet(sheet); }
+    ensureResumesSheet(ss);
+    return saveApplication(sheet, data, ss);
   } catch (err) {
-    return _jsonResponse({
-      status: "error",
-      message: err.toString(),
-    });
+    return _jsonResponse({ status: "error", message: err.toString() });
   }
 }
 
-function doGet(e) {
-  return _jsonResponse({
-    status: "ok",
-    message: "Job Tracker Web App is running.",
-  });
+function saveApplication(sheet, data, ss) {
+  const company = data.companyName || ""; const role = data.jobTitle || "";
+  const status = data.status || "Applied";
+  let tailoredUrl = "";
+  if (data.tailoredFileData && data.tailoredFileName) {
+    tailoredUrl = uploadPdfToDrive(data.tailoredFileData, data.tailoredFileName, company, role, "Tailored");
+    const resumesSheet = ensureResumesSheet(ss);
+    const tName = (company && role) ? (company + " — " + role + " (Tailored)") : data.tailoredFileName.replace(/\\.pdf$/i,"");
+    upsertResumeRow(resumesSheet, tName, tailoredUrl);
+  }
+  const row = [
+    data.applicationDate || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd-MMM-yy"),
+    company, role,
+    "", // D JD link
+    data.location || "", data.salary || "",
+    "", // G Resume
+    
+    status, // H Status
+    data.notes || "", // I Notes
+  ];
+  sheet.insertRowBefore(2);
+  sheet.getRange(2, 1, 1, row.length).setValues([row]);
+  const nr = 2; // The new row is always 2
+  if (data.url) {
+    sheet.getRange(nr,4).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("link").setLinkUrl(data.url).build());
+  }
+  if (data.resumeUsed) {
+    if (data.resumeDriveUrl) {
+      sheet.getRange(nr,7).setRichTextValue(SpreadsheetApp.newRichTextValue().setText(data.resumeUsed).setLinkUrl(data.resumeDriveUrl).build());
+    } else { sheet.getRange(nr,7).setValue(data.resumeUsed); }
+  }
+  if (tailoredUrl) {
+    sheet.getRange(nr,7).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("Tailored").setLinkUrl(tailoredUrl).build());
+  }
+  styleDataRow(sheet, nr, status);
+  const lastRow = sheet.getLastRow();
+  let ruleToApply = null;
+  if (lastRow > nr) {
+    const existingRule = sheet.getRange(nr + 1, 8).getDataValidation();
+    if (existingRule) ruleToApply = existingRule;
+  }
+  if (!ruleToApply) {
+    ruleToApply = SpreadsheetApp.newDataValidation().requireValueInList(STATUS_VALUES, true).setAllowInvalid(false).build();
+  }
+  sheet.getRange(nr,8).setDataValidation(ruleToApply);
+  return _jsonResponse({ status: "success", message: "Application saved!", row: nr });
 }
 
-function _jsonResponse(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}`;
+function handleGeneralResumeUpload(data, ss) {
+  if (!data.fileData || !data.fileName || !data.resumeName)
+    return _jsonResponse({ status: "error", message: "Missing required fields." });
+  const driveUrl = uploadPdfToDrive(data.fileData, data.fileName, data.resumeName, "", "General");
+  const sheet = ensureResumesSheet(ss);
+  upsertResumeRow(sheet, data.resumeName, driveUrl);
+  return _jsonResponse({ status: "success", driveUrl: driveUrl });
+}
 
-// ─── Populate script code block ───────────────────────────
-$scriptCode.textContent = APPS_SCRIPT_CODE;
+function uploadPdfToDrive(base64Data, originalFileName, company, role, tag) {
+  const blob = Utilities.newBlob(Utilities.base64Decode(base64Data), "application/pdf");
+  const base = originalFileName.replace(/\\.pdf$/i, "");
+  const parts = [base, tag, company, role].map(cleanText).filter(Boolean);
+  blob.setName(parts.join("_") + ".pdf");
+  let file;
+  if (DRIVE_FOLDER_ID && DRIVE_FOLDER_ID !== "YOUR_DRIVE_FOLDER_ID_HERE") {
+    file = DriveApp.getFolderById(DRIVE_FOLDER_ID).createFile(blob);
+  } else { file = DriveApp.createFile(blob); }
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return file.getUrl();
+}
+
+function cleanText(t) { return String(t||"").trim().replace(/\\s+/g,"_").replace(/[^a-zA-Z0-9_]/g,""); }
+
+function setupApplicationsSheet(sheet) {
+  const headers = ["Date Applied","Company","Role","JD","Location","Salary","Resume","Tailored Resume","Status","Notes"];
+  const hr = sheet.getRange(1,1,1,headers.length);
+  hr.setValues([headers]).setBackground(HEADER_BG).setFontColor(HEADER_TEXT)
+    .setFontWeight("bold").setFontSize(10).setHorizontalAlignment("center").setVerticalAlignment("middle");
+  sheet.setRowHeight(1,32); sheet.setFrozenRows(1);
+  hr.setBorder(null,null,true,null,null,null,ACCENT_BORDER,SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+  [95,160,200,45,120,100,120,90,110,220].forEach((w,i) => sheet.setColumnWidth(i+1,w));
+}
+
+function styleDataRow(sheet, rowNum, status) {
+  const bg = rowNum%2===0 ? ROW_EVEN : ROW_ODD;
+  sheet.getRange(rowNum,1,1,9).setBackground(bg).setFontSize(10);
+  sheet.setRowHeight(rowNum,24);
+  let s = bg;
+  if(status==="Applied") s=APPLIED_COLOR;
+  else if(status==="Rejected") s=REJECTED_COLOR;
+  else if(status==="OA") s=OA_COLOR;
+  else if(status==="Screening Call") s=SCREENING_COLOR;
+  else if(status==="1st Round") s=ROUND1_COLOR;
+  else if(status==="2nd Round") s=ROUND2_COLOR;
+  else if(status==="3rd Round") s=ROUND3_COLOR;
+  sheet.getRange(rowNum,8).setBackground(s).setHorizontalAlignment("center").setFontWeight("bold");
+  [1,4,7].forEach(c => sheet.getRange(rowNum,c).setHorizontalAlignment("center"));
+}
+
+function ensureResumesSheet(ss) {
+  let sheet = ss.getSheetByName(RESUMES_SHEET_NAME);
+  if (sheet) return sheet;
+  sheet = ss.insertSheet(RESUMES_SHEET_NAME);
+  const hr = sheet.getRange(1,1,1,3);
+  hr.setValues([["Resume Name","Google Drive Link","Date Added"]]).setBackground(HEADER_BG).setFontColor(HEADER_TEXT)
+    .setFontWeight("bold").setFontSize(10).setHorizontalAlignment("center");
+  sheet.setFrozenRows(1); sheet.setRowHeight(1,32);
+  hr.setBorder(null,null,true,null,null,null,ACCENT_BORDER,SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+  sheet.setColumnWidth(1,220); sheet.setColumnWidth(2,300); sheet.setColumnWidth(3,130);
+  return sheet;
+}
+
+function upsertResumeRow(sheet, resumeName, driveUrl) {
+  const last = sheet.getLastRow();
+  if (last > 1) {
+    const names = sheet.getRange(2,1,last-1,1).getValues();
+    for (let i=0; i<names.length; i++) {
+      if (names[i][0]===resumeName) {
+        sheet.getRange(i+2,2).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("Open in Drive").setLinkUrl(driveUrl).build())
+          .setHorizontalAlignment("center").setFontColor("#3949ab");
+        return;
+      }
+    }
+  }
+  const rn = sheet.getLastRow()+1;
+  const bg = rn%2===0 ? ROW_EVEN : ROW_ODD;
+  sheet.getRange(rn,1,1,3).setBackground(bg).setFontSize(10);
+  sheet.getRange(rn,1).setValue(resumeName);
+  sheet.getRange(rn,2).setRichTextValue(SpreadsheetApp.newRichTextValue().setText("Open in Drive").setLinkUrl(driveUrl).build())
+    .setHorizontalAlignment("center").setFontColor("#3949ab");
+  sheet.getRange(rn,3).setValue(Utilities.formatDate(new Date(),Session.getScriptTimeZone(),"MM/dd/yyyy")).setHorizontalAlignment("center");
+  sheet.setRowHeight(rn,24);
+}
+
+function doGet(e) {
+  const action = (e && e.parameter && e.parameter.action) || "";
+  if (action === "getStats") return getSheetStats();
+  return _jsonResponse({ status: "ok", message: "Job Tracker Web App is running." });
+}
+
+function getSheetStats() {
+  try {
+    const ss = (SPREADSHEET_ID && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE" ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet());
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet || sheet.getLastRow() < 2) return _jsonResponse({ status:"ok", totalApps:0, todayCount:0, weekCount:0, needFollowUp:0, statusBreakdown:{}, sources:{}, recentApps:[] });
+    const lastRow = sheet.getLastRow();
+    const data = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+    const tz = Session.getScriptTimeZone();
+    const todayStr = Utilities.formatDate(new Date(), tz, "dd-MMM-yy");
+    const now = new Date();
+    const weekStart = new Date(now); weekStart.setDate(now.getDate()-now.getDay()); weekStart.setHours(0,0,0,0);
+    const sevenDaysAgo = new Date(now.getTime() - 7*24*60*60*1000);
+    let todayCount=0, weekCount=0, needFollowUp=0;
+    const statusBreakdown={}, sources={}, recentApps=[];
+    data.forEach((row, idx) => {
+      const dateVal=row[0], company=String(row[1]||""), role=String(row[2]||""), status=String(row[7]||"Applied");
+      let appDate = dateVal instanceof Date ? dateVal : null;
+      if (!appDate) { try { appDate = new Date(String(dateVal)); } catch(_){} }
+      const appDateStr = appDate ? Utilities.formatDate(appDate, tz, "dd-MMM-yy") : "";
+      if (appDateStr===todayStr) todayCount++;
+      if (appDate && appDate>=weekStart) weekCount++;
+      if (appDate && appDate<sevenDaysAgo && status==="Applied") needFollowUp++;
+      statusBreakdown[status] = (statusBreakdown[status]||0)+1;
+      const urlCell = sheet.getRange(idx+2,4).getRichTextValue();
+      const urlLink = urlCell ? urlCell.getLinkUrl() : "";
+      if (urlLink) { try { const d=urlLink.match(/https?:\\/\\/(?:www\\.)?([^/]+)/)?.[1]||""; if(d) sources[d]=(sources[d]||0)+1; } catch(_){} }
+      if (recentApps.length<5) recentApps.push({ jobTitle:role, companyName:company, status, applicationDate:appDateStr });
+    });
+    return _jsonResponse({ status:"ok", totalApps:data.length, todayCount, weekCount, needFollowUp, statusBreakdown, sources, recentApps });
+  } catch(err) { return _jsonResponse({ status:"error", message:err.toString() }); }
+}
+
+function _jsonResponse(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }`;
+
+// ─── Populate script code block dynamically ───────────────────────────
+const $inputSheetId = document.getElementById("inputSheetId");
+const $inputDriveId = document.getElementById("inputDriveId");
+
+function updateScriptCode() {
+  const sheetId = $inputSheetId ? $inputSheetId.value.trim() : "";
+  const driveId = $inputDriveId ? $inputDriveId.value.trim() : "";
+
+  let modifiedCode = APPS_SCRIPT_CODE;
+  if (sheetId) modifiedCode = modifiedCode.replaceAll("YOUR_SPREADSHEET_ID_HERE", sheetId);
+  if (driveId) modifiedCode = modifiedCode.replaceAll("YOUR_DRIVE_FOLDER_ID_HERE", driveId);
+
+  $scriptCode.textContent = modifiedCode;
+}
+
+if ($inputSheetId) $inputSheetId.addEventListener("input", updateScriptCode);
+if ($inputDriveId) $inputDriveId.addEventListener("input", updateScriptCode);
+updateScriptCode();
 
 // ─── Copy script to clipboard ─────────────────────────────
 $copyBtn.addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(APPS_SCRIPT_CODE);
+    const codeToCopy = $scriptCode.textContent;
+    await navigator.clipboard.writeText(codeToCopy);
     $copyBtn.innerHTML = `
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
       Copied!
@@ -125,7 +290,7 @@ const $copyHeadersBtn = document.getElementById("copyHeadersBtn");
 if ($copyHeadersBtn) {
   $copyHeadersBtn.addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText("Timestamp\tApplication Date\tJob Title\tCompany Name\tURL\tLocation\tSalary\tResume Used\tConfidence Level\tSource\tStatus\tNotes");
+      await navigator.clipboard.writeText("Date Applied\tCompany\tRole\tJD\tLocation\tSalary\tResume\tStatus\tNotes");
       const originalInner = $copyHeadersBtn.innerHTML;
       $copyHeadersBtn.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>

@@ -348,6 +348,13 @@ h2 {
     white-space: nowrap;
 }
 
+.col-chip.accent-chip {
+    background: rgba(108, 99, 255, .12);
+    border-color: rgba(108, 99, 255, .35);
+    color: #a89cff;
+    font-weight: 600;
+}
+
 /* ─── Tip Boxes ─── */
 .tip-box {
     display: flex;
