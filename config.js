@@ -1,5 +1,5 @@
 // ============================================================
-//  CONFIG — Job Application Tracker by Nisarg Shah [Vibe Coder]
+//  CONFIG — Job Application Tracker by Nisarg Shah and Somil Doshi [Vibe Coder]
 // ============================================================
 //  1. Open your Google Apps Script project.
 //  2. Deploy → New deployment → Web app.

@@ -133,7 +133,7 @@ Unlike paid tools with subscription walls:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Created by Nisarg Shah
+Created by Nisarg Shah and Somil Doshi [Vibe Coder]
 Open source on GitHub — contributions welcome!
 ```
 

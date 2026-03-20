@@ -1,7 +1,7 @@
 # Privacy Policy for Job Application Tracker
 
 **Last Updated:** March 8, 2026  
-**Developer:** Nisarg Shah
+**Developer:** Nisarg Shah and Somil Doshi
 
 ## Overview
 
@@ -73,7 +73,7 @@ If we update this privacy policy, we will update the "Last Updated" date at the 
 
 If you have any questions about this privacy policy, please contact:
 
-**Nisarg Shah**  
+**Nisarg Shah and Somil Doshi**  
 Email: nisarg0708@gmail.com  
 GitHub: [https://github.com/nisarg-007](https://github.com/nisarg-007)
 
