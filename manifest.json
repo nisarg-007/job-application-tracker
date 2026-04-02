@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Job Application Tracker",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Track job applications to Google Sheets with one click. Dashboard, daily goals, duplicate detection & reminders.",
     "author": "Nisarg Shah and Somil Doshi [Vibe Coder]",
     "homepage_url": "https://github.com/nisarg-007/job-application-tracker",
